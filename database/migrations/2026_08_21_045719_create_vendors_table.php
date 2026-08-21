@@ -15,6 +15,9 @@ return new class extends Migration
             $table->id();
             $table->foreignId('user_id')->constrained('users')->cascadeOnDelete();
             $table->string('business_name');
+            $table->string('contact_person')->nullable();
+            $table->text('address')->nullable();
+            $table->string('gst_number')->nullable();
             $table->string('kyc_status')->default('pending');
             $table->string('approval_status')->default('pending');
             $table->enum('vendor_type', ['originator', 'executor', 'both'])->default('both');

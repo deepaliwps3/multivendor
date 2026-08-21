@@ -5,16 +5,16 @@
         <nav class="sidebar-nav">
             <ul id="sidebarnav">
                 <!-- 1. Dashboard -->
-                <li class="sidebar-item">
-                    <a class="sidebar-link sidebar-link" href="{{ route('dashboard') }}" aria-expanded="false">
+                <li class="sidebar-item {{ request()->routeIs('dashboard') ? 'selected' : '' }}">
+                    <a class="sidebar-link sidebar-link {{ request()->routeIs('dashboard') ? 'active' : '' }}" href="{{ route('dashboard') }}" aria-expanded="false">
                         <i data-feather="home" class="feather-icon"></i>
                         <span class="hide-menu">Dashboard</span>
                     </a>
                 </li>
 
                 <!-- 2. Industries -->
-                <li class="sidebar-item">
-                    <a class="sidebar-link sidebar-link" href="{{ route('industries.index') }}" aria-expanded="false">
+                <li class="sidebar-item {{ request()->routeIs('industries.*') ? 'selected' : '' }}">
+                    <a class="sidebar-link sidebar-link {{ request()->routeIs('industries.*') ? 'active' : '' }}" href="{{ route('industries.index') }}" aria-expanded="false">
                         <i data-feather="grid" class="feather-icon"></i>
                         <span class="hide-menu">Industries</span>
                     </a>
@@ -37,8 +37,8 @@
                 </li>
 
                 <!-- 5. Vendors -->
-                <li class="sidebar-item">
-                    <a class="sidebar-link sidebar-link" href="javascript:void(0)" aria-expanded="false">
+                <li class="sidebar-item {{ request()->routeIs('vendors.*') ? 'selected' : '' }}">
+                    <a class="sidebar-link sidebar-link {{ request()->routeIs('vendors.*') ? 'active' : '' }}" href="{{ route('vendors.index') }}" aria-expanded="false">
                         <i data-feather="users" class="feather-icon"></i>
                         <span class="hide-menu">Vendors</span>
                     </a>

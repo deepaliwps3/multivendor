@@ -7,7 +7,8 @@
             <!-- Logo -->
             <div class="navbar-brand">
                 <a href="{{ route('dashboard') }}">
-                    <img src="{{ asset('assets/extra-assets/images/freedashDark.svg') }}" alt="Logo" class="img-fluid">
+                    <img src="{{ asset('assets/extra-assets/images/freedashDark.svg') }}" alt="Logo"
+                        class="img-fluid">
                 </a>
             </div>
             <!-- Toggle visible on mobile -->
@@ -98,11 +99,11 @@
                 <li class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle" href="javascript:void(0)" data-bs-toggle="dropdown"
                         aria-haspopup="true" aria-expanded="false">
-                        <img src="{{ asset('assets/extra-assets/images/users/profile-pic.jpg') }}" alt="user" class="rounded-circle"
-                            width="40">
+                        <img src="{{ asset('assets/extra-assets/images/users/profile-pic.jpg') }}" alt="user"
+                            class="rounded-circle" width="40">
                         <span class="ms-2 d-none d-lg-inline-block"><span>Hello,</span> <span
-                                class="text-dark">{{ Auth::user()->name ?? 'User' }}</span> <i data-feather="chevron-down"
-                                class="svg-icon"></i></span>
+                                class="text-dark">{{ Auth::user()->name ?? 'User' }}</span> <i
+                                data-feather="chevron-down" class="svg-icon"></i></span>
                     </a>
                     <div class="dropdown-menu dropdown-menu-end dropdown-menu-right user-dd animated flipInY">
                         <a class="dropdown-item" href="{{ route('profile.edit') }}"><i data-feather="user"
@@ -113,7 +114,8 @@
                         <form method="POST" action="{{ route('logout') }}" id="header-logout-form" class="d-none">
                             @csrf
                         </form>
-                        <a class="dropdown-item" href="{{ route('logout') }}" onclick="event.preventDefault(); document.getElementById('header-logout-form').submit();">
+                        <a class="dropdown-item" href="{{ route('logout') }}"
+                            onclick="event.preventDefault(); document.getElementById('header-logout-form').submit();">
                             <i data-feather="power" class="svg-icon me-2 ms-1"></i>
                             Logout
                         </a>

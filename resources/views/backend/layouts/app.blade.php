@@ -16,7 +16,13 @@
     <link href="{{ asset('assets/extra-assets/extra-libs/c3/c3.min.css') }}" rel="stylesheet">
     <link href="{{ asset('assets/extra-assets/libs/chartist/dist/chartist.min.css') }}" rel="stylesheet">
     <link href="{{ asset('assets/extra-assets/extra-libs/jvector/jquery-jvectormap-2.0.2.css') }}" rel="stylesheet" />
+    <link href="{{ asset('assets/extra-assets/extra-libs/datatables.net-bs4/css/dataTables.bootstrap4.css') }}"
+        rel="stylesheet">
+    <link href="{{ asset('assets/extra-assets/extra-libs/datatables.net-bs4/css/responsive.dataTables.min.css') }}"
+        rel="stylesheet">
+    <link href="{{ asset('assets/dist/css/custom-datatables.css') }}" rel="stylesheet">
     <link href="{{ asset('assets/dist/css/style.min.css') }}" rel="stylesheet">
+    @stack('styles')
 
     <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
     <!--[if lt IE 9]>
@@ -39,23 +45,23 @@
         data-sidebar-position="fixed" data-header-position="fixed" data-boxed-layout="full">
 
         <!-- Topbar Header -->
-        @include('layouts.header')
+        @include('backend.layouts.header')
 
         <!-- Left Sidebar -->
-        @include('layouts.sidebar')
+        @include('backend.layouts.sidebar')
 
         <!-- Page Wrapper -->
         <div class="page-wrapper">
 
             <!-- Page Content -->
-            @if(isset($slot) && $slot->isNotEmpty())
+            @if (isset($slot) && $slot->isNotEmpty())
                 {{ $slot }}
             @else
                 @yield('content')
             @endif
 
             <!-- Footer -->
-            @include('layouts.footer')
+            @include('backend.layouts.footer')
         </div>
     </div>
 
@@ -68,14 +74,21 @@
     <script src="{{ asset('assets/dist/js/sidebarmenu.js') }}"></script>
     <script src="{{ asset('assets/dist/js/custom.min.js') }}"></script>
 
+    <!-- DataTables JS -->
+    <script src="{{ asset('assets/extra-assets/extra-libs/datatables.net/js/jquery.dataTables.min.js') }}"></script>
+    <script src="{{ asset('assets/extra-assets/extra-libs/datatables.net-bs4/js/dataTables.bootstrap4.min.js') }}">
+    </script>
+
     <!-- Dashboard charts & maps plugin js -->
     <script src="{{ asset('assets/extra-assets/extra-libs/c3/d3.min.js') }}"></script>
     <script src="{{ asset('assets/extra-assets/extra-libs/c3/c3.min.js') }}"></script>
     <script src="{{ asset('assets/extra-assets/libs/chartist/dist/chartist.min.js') }}"></script>
-    <script src="{{ asset('assets/extra-assets/libs/chartist-plugin-tooltips/dist/chartist-plugin-tooltip.min.js') }}"></script>
+    <script src="{{ asset('assets/extra-assets/libs/chartist-plugin-tooltips/dist/chartist-plugin-tooltip.min.js') }}">
+    </script>
     <script src="{{ asset('assets/extra-assets/extra-libs/jvector/jquery-jvectormap-2.0.2.min.js') }}"></script>
     <script src="{{ asset('assets/extra-assets/extra-libs/jvector/jquery-jvectormap-world-mill-en.js') }}"></script>
     <script src="{{ asset('assets/dist/js/pages/dashboards/dashboard1.min.js') }}"></script>
+    @stack('scripts')
 </body>
 
 </html>

@@ -25,7 +25,7 @@ class RegisteredUserController extends Controller
     {
         abort_unless(Auth::user()?->isSuperadmin(), 403);
 
-        return view('auth.register', [
+        return view('backend.auth.register', [
             'roles' => Role::whereIn('name', self::ALLOWED_ROLES)->get(),
         ]);
     }

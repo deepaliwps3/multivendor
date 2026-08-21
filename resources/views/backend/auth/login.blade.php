@@ -1,6 +1,7 @@
 <x-guest-layout>
     <div class="auth-box row">
-        <div class="col-lg-7 col-md-5 modal-bg-img" style="background-image: url({{ asset('assets/extra-assets/images/big/3.jpg') }});">
+        <div class="col-lg-7 col-md-5 modal-bg-img"
+            style="background-image: url({{ asset('assets/extra-assets/images/big/3.jpg') }});">
         </div>
         <div class="col-lg-5 col-md-7 bg-white">
             <div class="p-3">
@@ -19,9 +20,9 @@
                         <div class="col-lg-12">
                             <div class="form-group mb-3">
                                 <label class="form-label text-dark" for="email">Email Address</label>
-                                <input class="form-control @error('email') is-invalid @enderror" id="email" type="email" name="email"
-                                    value="{{ old('email') }}" required autofocus autocomplete="username"
-                                    placeholder="Enter your email address">
+                                <input class="form-control @error('email') is-invalid @enderror" id="email"
+                                    type="email" name="email" value="{{ old('email') }}" required autofocus
+                                    autocomplete="username" placeholder="Enter your email address">
                                 @error('email')
                                     <span class="invalid-feedback d-block mt-1" role="alert">
                                         <strong>{{ $message }}</strong>
@@ -32,8 +33,8 @@
                         <div class="col-lg-12">
                             <div class="form-group mb-3">
                                 <label class="form-label text-dark" for="pwd">Password</label>
-                                <input class="form-control @error('password') is-invalid @enderror" id="pwd" type="password" name="password"
-                                    required autocomplete="current-password"
+                                <input class="form-control @error('password') is-invalid @enderror" id="pwd"
+                                    type="password" name="password" required autocomplete="current-password"
                                     placeholder="Enter your password">
                                 @error('password')
                                     <span class="invalid-feedback d-block mt-1" role="alert">
@@ -50,7 +51,8 @@
                                 </label>
                             </div>
                             @if (Route::has('password.request'))
-                                <a href="{{ route('password.request') }}" class="text-secondary small">Forgot Password?</a>
+                                <a href="{{ route('password.request') }}" class="text-secondary small">Forgot
+                                    Password?</a>
                             @endif
                         </div>
                         <div class="col-lg-12 text-center">

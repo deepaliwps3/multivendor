@@ -1,7 +1,7 @@
 <?php
 
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
-use App\Http\Controllers\IndustryController;
+use App\Http\Controllers\Backend\IndustryController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 
@@ -10,7 +10,7 @@ Route::get('/', [AuthenticatedSessionController::class, 'create'])
 
 Route::middleware('auth', 'verified')->group(function () {
     Route::get('/dashboard', function () {
-        return view('dashboard');
+        return view('backend.dashboard');
     })->name('dashboard');
     Route::resource('industries', IndustryController::class);
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');

@@ -29,8 +29,8 @@
                 </li>
 
                 <!-- 4. Workflow Templates -->
-                <li class="sidebar-item">
-                    <a class="sidebar-link sidebar-link" href="javascript:void(0)" aria-expanded="false">
+                <li class="sidebar-item {{ request()->routeIs('workflow-templates.*') ? 'selected' : '' }}">
+                    <a class="sidebar-link sidebar-link {{ request()->routeIs('workflow-templates.*') ? 'active' : '' }}" href="{{ route('workflow-templates.index') }}" aria-expanded="false">
                         <i data-feather="file-text" class="feather-icon"></i>
                         <span class="hide-menu">Workflow Templates</span>
                     </a>

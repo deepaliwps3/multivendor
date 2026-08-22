@@ -4,6 +4,7 @@ use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\Backend\IndustryController;
 use App\Http\Controllers\Backend\VendorController;
 use App\Http\Controllers\Backend\ServiceController;
+use App\Http\Controllers\Backend\WorkflowTemplateController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 
@@ -16,6 +17,7 @@ Route::middleware('auth', 'verified')->group(function () {
     })->name('dashboard');
     Route::resource('industries', IndustryController::class);
     Route::resource('services', ServiceController::class);
+    Route::resource('workflow-templates', WorkflowTemplateController::class);
     Route::resource('vendors', VendorController::class);
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');

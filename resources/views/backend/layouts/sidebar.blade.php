@@ -21,8 +21,8 @@
                 </li>
 
                 <!-- 3. Services -->
-                <li class="sidebar-item">
-                    <a class="sidebar-link sidebar-link" href="javascript:void(0)" aria-expanded="false">
+                <li class="sidebar-item {{ request()->routeIs('services.*') ? 'selected' : '' }}"">
+                    <a class="sidebar-link sidebar-link {{ request()->routeIs('services.*') ? 'active' : '' }}" href="{{ route('services.index') }}" aria-expanded="false">
                         <i data-feather="box" class="feather-icon"></i>
                         <span class="hide-menu">Services</span>
                     </a>

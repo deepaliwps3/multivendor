@@ -4,12 +4,14 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Str;
 
 class Payment extends Model
 {
     use HasFactory;
 
     protected $fillable = [
+        'uuid',
         'order_stage_id',
         'payer_id',
         'payee_id',
@@ -17,6 +19,13 @@ class Payment extends Model
         'status',
         'released_at',
     ];
+
+    protected static function booted(): void
+    {
+        static::creating(function ($payment) {
+            $payment->uuid = (string) Str::uuid();
+        });
+    }
 
     protected function casts(): array
     {

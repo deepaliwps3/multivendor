@@ -4,18 +4,27 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Str;
 
 class Order extends Model
 {
     use HasFactory;
 
     protected $fillable = [
+        'uuid',
         'industry_id',
         'workflow_template_id',
         'originating_vendor_id',
         'status',
         'deadline',
     ];
+
+    protected static function booted(): void
+    {
+        static::creating(function ($order) {
+            $order->uuid = (string) Str::uuid();
+        });
+    }
 
     protected function casts(): array
     {

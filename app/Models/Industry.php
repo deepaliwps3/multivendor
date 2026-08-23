@@ -4,12 +4,14 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Str;
 
 class Industry extends Model
 {
     use HasFactory;
 
     protected $fillable = [
+        'uuid',
         'name',
         'status',
     ];
@@ -17,6 +19,17 @@ class Industry extends Model
     protected $casts = [
         'status' => 'boolean',
     ];
+
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::creating(function ($industry) {
+            if (empty($industry->uuid)) {
+                $industry->uuid = Str::uuid()->toString();
+            }
+        });
+    }
 
     public function services()
     {

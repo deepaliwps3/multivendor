@@ -61,8 +61,8 @@
                 </li>
 
                 <!-- 8. Payments -->
-                <li class="sidebar-item">
-                    <a class="sidebar-link sidebar-link" href="javascript:void(0)" aria-expanded="false">
+                <li class="sidebar-item {{ request()->routeIs('payments.*') ? 'selected' : '' }}">
+                    <a class="sidebar-link sidebar-link {{ request()->routeIs('payments.*') ? 'active' : '' }}" href="{{ route('payments.index') }}" aria-expanded="false">
                         <i data-feather="credit-card" class="feather-icon"></i>
                         <span class="hide-menu">Payments</span>
                     </a>

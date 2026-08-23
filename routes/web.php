@@ -6,6 +6,7 @@ use App\Http\Controllers\Backend\VendorController;
 use App\Http\Controllers\Backend\ServiceController;
 use App\Http\Controllers\Backend\WorkflowTemplateController;
 use App\Http\Controllers\Backend\StaffPermissionController;
+use App\Http\Controllers\Backend\PaymentController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 
@@ -21,6 +22,7 @@ Route::middleware('auth', 'verified')->group(function () {
     Route::resource('workflow-templates', WorkflowTemplateController::class);
     Route::resource('vendors', VendorController::class);
     Route::resource('staff-permissions', StaffPermissionController::class);
+    Route::resource('payments', PaymentController::class);
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');

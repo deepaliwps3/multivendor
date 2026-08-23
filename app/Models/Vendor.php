@@ -4,12 +4,14 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Str;
 
 class Vendor extends Model
 {
     use HasFactory;
 
     protected $fillable = [
+        'uuid',
         'user_id',
         'business_name',
         'contact_person',
@@ -19,6 +21,15 @@ class Vendor extends Model
         'approval_status',
         'vendor_type',
     ];
+
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::creating(function ($vendor) {
+            $vendor->uuid = (string) Str::uuid();
+        });
+    }
 
     public function user()
     {

@@ -4,12 +4,20 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Str;
 
 class WorkflowTemplateStage extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['template_id', 'service_id', 'sequence_no', 'is_mandatory'];
+    protected $fillable = ['uuid', 'template_id', 'service_id', 'sequence_no', 'is_mandatory'];
+
+    protected static function booted()
+    {
+        static::creating(function ($workflowTemplateStage) {
+            $workflowTemplateStage->uuid = (string) Str::uuid();
+        });
+    }
 
     protected function casts(): array
     {

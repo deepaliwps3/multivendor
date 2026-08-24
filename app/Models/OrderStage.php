@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Str;
 
 class OrderStage extends Model
 {
@@ -19,6 +20,15 @@ class OrderStage extends Model
         'amount',
         'completed_at',
     ];
+
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::creating(function ($orderStage) {
+            $orderStage->uuid = (string) Str::uuid();
+        });
+    }
 
     protected function casts(): array
     {

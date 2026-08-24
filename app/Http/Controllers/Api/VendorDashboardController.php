@@ -37,6 +37,7 @@ class VendorDashboardController extends Controller
             'address' => $vendor->address,
             'gst_number' => $vendor->gst_number,
             'approval_status' => $vendor->approval_status ?? 'pending',
+            'rejection_reason' => $vendor->rejection_reason ?? null,
             'kyc_status' => $vendor->kyc_status ?? 'pending',
             'vendor_type' => $vendor->vendor_type ?? 'both',
             'industries' => $vendor->industries->map(fn($i) => ['id' => $i->id, 'name' => $i->name]),
@@ -72,6 +73,8 @@ class VendorDashboardController extends Controller
             'contact_person' => $validated['contact_person'] ?? $vendor->contact_person,
             'address' => $validated['address'] ?? $vendor->address,
             'gst_number' => $validated['gst_number'] ?? $vendor->gst_number,
+            'approval_status' => 'pending', // Resubmits for admin approval
+            'rejection_reason' => null, // Clears previous rejection reason upon resubmission
         ]);
 
         if (isset($validated['industry_ids'])) {
@@ -85,7 +88,7 @@ class VendorDashboardController extends Controller
         $vendor->load(['industries', 'services']);
 
         return response()->json([
-            'message' => 'Profile updated successfully',
+            'message' => 'Profile updated and resubmitted for approval successfully',
             'profile' => [
                 'id' => $vendor->id,
                 'business_name' => $vendor->business_name,
@@ -93,6 +96,7 @@ class VendorDashboardController extends Controller
                 'address' => $vendor->address,
                 'gst_number' => $vendor->gst_number,
                 'approval_status' => $vendor->approval_status ?? 'pending',
+                'rejection_reason' => null,
                 'kyc_status' => $vendor->kyc_status ?? 'pending',
                 'vendor_type' => $vendor->vendor_type ?? 'both',
                 'industries' => $vendor->industries->map(fn($i) => ['id' => $i->id, 'name' => $i->name]),

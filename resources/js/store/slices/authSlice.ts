@@ -9,11 +9,20 @@ export interface AuthState {
     error: string | null;
 }
 
+const getSavedUser = (): User | null => {
+    try {
+        const savedUser = localStorage.getItem('auth_user');
+        return savedUser && savedUser !== 'undefined' ? JSON.parse(savedUser) : null;
+    } catch {
+        localStorage.removeItem('auth_user');
+        return null;
+    }
+};
+
 const savedToken = localStorage.getItem('auth_token');
-const savedUser = localStorage.getItem('auth_user');
 
 const initialState: AuthState = {
-    user: savedUser ? JSON.parse(savedUser) : null,
+    user: getSavedUser(),
     token: savedToken || null,
     isAuthenticated: !!savedToken,
     loading: false,

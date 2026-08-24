@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import {
     Add as AddIcon,
     Assignment as AssignmentIcon,
+    Cancel as CancelIcon,
     CheckCircle as CheckCircleIcon,
     Edit as EditIcon,
     ExitToApp as LogoutIcon,
@@ -14,6 +15,8 @@ import {
     Warning as WarningIcon,
 } from "@mui/icons-material";
 import {
+    Alert,
+    AlertTitle,
     Badge,
     Box,
     Button,
@@ -99,6 +102,7 @@ export const Dashboard: React.FC = () => {
     }
 
     const isApproved = vendorProfile?.approval_status === "approved";
+    const isRejected = vendorProfile?.approval_status === "rejected";
     const vendorType = vendorProfile?.vendor_type || "both";
 
     /* =========================================================================
@@ -517,10 +521,11 @@ export const Dashboard: React.FC = () => {
                                 sx={{
                                     fontWeight: 800,
                                     letterSpacing: "-0.5px",
+                                    fontSize: "14px",
                                 }}
                             >
                                 {isApproved
-                                    ? `👋 Welcome back, ${vendorProfile?.business_name || user?.name}`
+                                    ? `👋 Hello, ${vendorProfile?.business_name || user?.name}`
                                     : "Vendor Portal"}
                             </Typography>
                             <Typography
@@ -537,31 +542,53 @@ export const Dashboard: React.FC = () => {
                             sx={{
                                 display: "flex",
                                 alignItems: "center",
-                                gap: 1,
+                                gap: 0.5,
                             }}
                         >
                             {isApproved && (
                                 <>
-                                    <IconButton color="inherit" size="medium">
-                                        <Badge badgeContent={3} color="error">
-                                            <NotificationsIcon />
+                                    <IconButton
+                                        color="inherit"
+                                        size="small"
+                                        sx={{ p: 0.5 }}
+                                    >
+                                        <Badge
+                                            badgeContent={3}
+                                            color="error"
+                                            sx={{
+                                                "& .MuiBadge-badge": {
+                                                    fontSize: 10,
+                                                    height: 16,
+                                                    minWidth: 16,
+                                                    padding: "0 4px",
+                                                },
+                                            }}
+                                        >
+                                            <NotificationsIcon
+                                                sx={{ fontSize: 18 }}
+                                            />
                                         </Badge>
                                     </IconButton>
 
-                                    <IconButton color="inherit" size="medium">
-                                        <SettingsIcon />
+                                    <IconButton
+                                        color="inherit"
+                                        size="small"
+                                        sx={{ p: 0.5 }}
+                                    >
+                                        <SettingsIcon sx={{ fontSize: 18 }} />
                                     </IconButton>
                                 </>
                             )}
 
-                            <Button
-                                variant="outlined"
+                            <IconButton
                                 color="error"
                                 size="small"
-                                startIcon={<LogoutIcon />}
                                 onClick={logout}
-                                sx={{ ml: 1, borderRadius: 2 }}
-                            ></Button>
+                                title="Logout"
+                                sx={{ p: 0.5 }}
+                            >
+                                <LogoutIcon sx={{ fontSize: 18 }} />
+                            </IconButton>
                         </Box>
                     </Box>
                 </Container>
@@ -570,7 +597,7 @@ export const Dashboard: React.FC = () => {
             {/* MAIN CONTENT AREA */}
             <Container maxWidth="lg" sx={{ mt: 3 }}>
                 {!isApproved ? (
-                    /* STATE 1: Pending Approval View */
+                    /* STATE 1: Pending / Rejected Approval View */
                     <Container maxWidth="sm" disableGutters>
                         <Paper
                             elevation={16}
@@ -579,53 +606,142 @@ export const Dashboard: React.FC = () => {
                                 borderRadius: 4,
                                 backdropFilter: "blur(16px)",
                                 background: "rgba(30, 41, 59, 0.85)",
-                                border: "1px solid rgba(255, 255, 255, 0.1)",
+                                border: isRejected
+                                    ? "1px solid rgba(239, 68, 68, 0.4)"
+                                    : "1px solid rgba(255, 255, 255, 0.1)",
                             }}
                         >
-                            <Box sx={{ textAlign: "center", mb: 3 }}>
-                                <Box
-                                    sx={{
-                                        width: 64,
-                                        height: 64,
-                                        borderRadius: "50%",
-                                        background: "rgba(234, 179, 8, 0.15)",
-                                        color: "#eab308",
-                                        display: "flex",
-                                        alignItems: "center",
-                                        justifyContent: "center",
-                                        margin: "0 auto 16px auto",
-                                        border: "1px solid rgba(234, 179, 8, 0.3)",
-                                    }}
-                                >
-                                    <HourglassIcon sx={{ fontSize: 36 }} />
-                                </Box>
+                            {isRejected ? (
+                                /* REJECTED STATE HEADER */
+                                <Box sx={{ textAlign: "center", mb: 3 }}>
+                                    <Box
+                                        sx={{
+                                            width: 64,
+                                            height: 64,
+                                            borderRadius: "50%",
+                                            background:
+                                                "rgba(239, 68, 68, 0.15)",
+                                            color: "#ef4444",
+                                            display: "flex",
+                                            alignItems: "center",
+                                            justifyContent: "center",
+                                            margin: "0 auto 16px auto",
+                                            border: "1px solid rgba(239, 68, 68, 0.3)",
+                                        }}
+                                    >
+                                        <CancelIcon sx={{ fontSize: 36 }} />
+                                    </Box>
 
-                                <Typography
-                                    variant="h5"
-                                    sx={{ fontWeight: 800, mb: 1 }}
-                                >
-                                    ⏳ Registration Under Review
-                                </Typography>
-                                <Typography
-                                    variant="body1"
-                                    color="text.secondary"
-                                >
-                                    Hi{" "}
-                                    <strong>
-                                        {user?.name ||
-                                            vendorProfile?.contact_person ||
-                                            "Vendor"}
-                                    </strong>
-                                    , your profile is being verified.
-                                </Typography>
-                                <Typography
-                                    variant="body2"
-                                    color="text.secondary"
-                                    sx={{ opacity: 0.8, mt: 0.5 }}
-                                >
-                                    This usually takes 24 - 48 hours.
-                                </Typography>
-                            </Box>
+                                    <Typography
+                                        variant="h5"
+                                        sx={{
+                                            fontWeight: 800,
+                                            mb: 1,
+                                            color: "#fca5a5",
+                                        }}
+                                    >
+                                        Application Rejected
+                                    </Typography>
+                                    <Typography
+                                        variant="body1"
+                                        color="text.secondary"
+                                        sx={{ mb: 2 }}
+                                    >
+                                        Hi{" "}
+                                        <strong>
+                                            {user?.name ||
+                                                vendorProfile?.contact_person ||
+                                                "Vendor"}
+                                        </strong>
+                                        , your application request was rejected
+                                        by admin.
+                                    </Typography>
+
+                                    <Alert
+                                        severity="error"
+                                        variant="filled"
+                                        sx={{
+                                            mb: 2,
+                                            textAlign: "left",
+                                            borderRadius: 3,
+                                            bgcolor: "rgba(239, 68, 68, 0.15)",
+                                            color: "#fca5a5",
+                                            border: "1px solid rgba(239, 68, 68, 0.3)",
+                                        }}
+                                    >
+                                        <AlertTitle sx={{ fontWeight: 700 }}>
+                                            Reason for Rejection
+                                        </AlertTitle>
+                                        {vendorProfile?.rejection_reason ||
+                                            "Inaccurate or incomplete business details provided. Please review and update your profile and resubmit for approval."}
+                                    </Alert>
+                                </Box>
+                            ) : (
+                                /* PENDING STATE HEADER */
+                                <Box sx={{ textAlign: "center", mb: 3 }}>
+                                    <Box
+                                        sx={{
+                                            width: 64,
+                                            height: 64,
+                                            borderRadius: "50%",
+                                            background:
+                                                "rgba(234, 179, 8, 0.15)",
+                                            color: "#eab308",
+                                            display: "flex",
+                                            alignItems: "center",
+                                            justifyContent: "center",
+                                            margin: "0 auto 16px auto",
+                                            border: "1px solid rgba(234, 179, 8, 0.3)",
+                                        }}
+                                    >
+                                        <HourglassIcon sx={{ fontSize: 36 }} />
+                                    </Box>
+
+                                    <Typography
+                                        variant="h5"
+                                        sx={{ fontWeight: 800, mb: 1 }}
+                                    >
+                                        ⏳ Registration Under Review
+                                    </Typography>
+                                    <Typography
+                                        variant="body1"
+                                        color="text.secondary"
+                                    >
+                                        Hi{" "}
+                                        <strong>
+                                            {user?.name ||
+                                                vendorProfile?.contact_person ||
+                                                "Vendor"}
+                                        </strong>
+                                        , your profile is being verified.
+                                    </Typography>
+                                    <Typography
+                                        variant="body2"
+                                        color="text.secondary"
+                                        sx={{ opacity: 0.8, mt: 0.5, mb: 2 }}
+                                    >
+                                        This usually takes 24 - 48 hours.
+                                    </Typography>
+
+                                    <Alert
+                                        severity="info"
+                                        variant="outlined"
+                                        sx={{
+                                            mb: 1,
+                                            textAlign: "left",
+                                            borderRadius: 3,
+                                            borderColor:
+                                                "rgba(99, 102, 241, 0.4)",
+                                            color: "#cbd5e1",
+                                            bgcolor: "rgba(15, 23, 42, 0.4)",
+                                        }}
+                                    >
+                                        Your registration request is in queue
+                                        for admin verification. Profile editing
+                                        is locked while under review.
+                                    </Alert>
+                                </Box>
+                            )}
 
                             <Divider
                                 sx={{
@@ -669,7 +785,7 @@ export const Dashboard: React.FC = () => {
                                             sx={{ fontWeight: 600 }}
                                         >
                                             {vendorProfile?.business_name ||
-                                                "Ramesh Karigar Works"}
+                                                "N/A"}
                                         </Typography>
                                     </Box>
 
@@ -721,32 +837,57 @@ export const Dashboard: React.FC = () => {
                                 </Stack>
                             </Box>
 
-                            <Grid container spacing={1}>
-                                <Grid size={{ xs: 6 }}>
-                                    <Button
-                                        fullWidth
-                                        variant="outlined"
-                                        startIcon={<EditIcon />}
-                                        onClick={() => navigate('/profile/edit')}
-                                        sx={{ py: 1.2, borderRadius: 2 }}
-                                    >
-                                        Profile
-                                    </Button>
-                                </Grid>
-                                <Grid size={{ xs: 6 }}>
-                                    <Button
-                                        fullWidth
-                                        variant="contained"
-                                        startIcon={<SupportIcon />}
-                                        sx={{
-                                            py: 1.2,
-                                            borderRadius: 2,
-                                            fontWeight: 600,
-                                        }}
-                                    >
-                                        Support
-                                    </Button>
-                                </Grid>
+                            <Grid container spacing={1.5}>
+                                {isRejected ? (
+                                    <>
+                                        <Grid size={{ xs: 12, sm: 6 }}>
+                                            <Button
+                                                fullWidth
+                                                variant="contained"
+                                                color="primary"
+                                                startIcon={<EditIcon />}
+                                                onClick={() =>
+                                                    navigate("/profile/edit")
+                                                }
+                                                sx={{
+                                                    py: 1.2,
+                                                    borderRadius: 2,
+                                                    fontWeight: 700,
+                                                }}
+                                            >
+                                                Edit Profile & Resubmit
+                                            </Button>
+                                        </Grid>
+                                        <Grid size={{ xs: 12, sm: 6 }}>
+                                            <Button
+                                                fullWidth
+                                                variant="outlined"
+                                                color="error"
+                                                startIcon={<LogoutIcon />}
+                                                onClick={logout}
+                                                sx={{
+                                                    py: 1.2,
+                                                    borderRadius: 2,
+                                                }}
+                                            >
+                                                Logout
+                                            </Button>
+                                        </Grid>
+                                    </>
+                                ) : (
+                                    <Grid size={{ xs: 12 }}>
+                                        <Button
+                                            fullWidth
+                                            variant="outlined"
+                                            color="error"
+                                            startIcon={<LogoutIcon />}
+                                            onClick={logout}
+                                            sx={{ py: 1.2, borderRadius: 2 }}
+                                        >
+                                            Logout
+                                        </Button>
+                                    </Grid>
+                                )}
                             </Grid>
                         </Paper>
                     </Container>

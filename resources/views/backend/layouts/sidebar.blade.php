@@ -21,16 +21,16 @@
                 </li>
 
                 <!-- 3. Services -->
-                <li class="sidebar-item">
-                    <a class="sidebar-link sidebar-link" href="javascript:void(0)" aria-expanded="false">
+                <li class="sidebar-item {{ request()->routeIs('services.*') ? 'selected' : '' }}"">
+                    <a class="sidebar-link sidebar-link {{ request()->routeIs('services.*') ? 'active' : '' }}" href="{{ route('services.index') }}" aria-expanded="false">
                         <i data-feather="box" class="feather-icon"></i>
                         <span class="hide-menu">Services</span>
                     </a>
                 </li>
 
                 <!-- 4. Workflow Templates -->
-                <li class="sidebar-item">
-                    <a class="sidebar-link sidebar-link" href="javascript:void(0)" aria-expanded="false">
+                <li class="sidebar-item {{ request()->routeIs('workflow-templates.*') ? 'selected' : '' }}">
+                    <a class="sidebar-link sidebar-link {{ request()->routeIs('workflow-templates.*') ? 'active' : '' }}" href="{{ route('workflow-templates.index') }}" aria-expanded="false">
                         <i data-feather="file-text" class="feather-icon"></i>
                         <span class="hide-menu">Workflow Templates</span>
                     </a>
@@ -45,8 +45,8 @@
                 </li>
 
                 <!-- 6. Staff & Permissions -->
-                <li class="sidebar-item">
-                    <a class="sidebar-link sidebar-link" href="javascript:void(0)" aria-expanded="false">
+                <li class="sidebar-item {{ request()->routeIs('staff-permissions.*') ? 'selected' : '' }}">
+                    <a class="sidebar-link sidebar-link {{ request()->routeIs('staff-permissions.*') ? 'active' : '' }}" href="{{ route('staff-permissions.index') }}" aria-expanded="false">
                         <i data-feather="shield" class="feather-icon"></i>
                         <span class="hide-menu">Staff &amp; Permissions</span>
                     </a>
@@ -61,8 +61,8 @@
                 </li>
 
                 <!-- 8. Payments -->
-                <li class="sidebar-item">
-                    <a class="sidebar-link sidebar-link" href="javascript:void(0)" aria-expanded="false">
+                <li class="sidebar-item {{ request()->routeIs('payments.*') ? 'selected' : '' }}">
+                    <a class="sidebar-link sidebar-link {{ request()->routeIs('payments.*') ? 'active' : '' }}" href="{{ route('payments.index') }}" aria-expanded="false">
                         <i data-feather="credit-card" class="feather-icon"></i>
                         <span class="hide-menu">Payments</span>
                     </a>

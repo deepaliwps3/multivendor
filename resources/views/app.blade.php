@@ -7,6 +7,10 @@
 
     <title>{{ config('app.name', 'MultiVendor App') }}</title>
 
+    <!-- Eruda Mobile Console Overlay for Debugging (Safe init) -->
+    <script src="https://cdn.jsdelivr.net/npm/eruda"></script>
+    <script>if (typeof eruda !== 'undefined') { eruda.init(); }</script>
+
     <!-- Vite HMR & React TSX Entry Point -->
     @viteReactRefresh
     @vite(['resources/css/app.css', 'resources/js/app.tsx'])

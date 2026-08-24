@@ -71,7 +71,7 @@ return [
      * | If not set, the app will load the root path ("/").
      * |
      */
-    'start_url' => env('NATIVEPHP_START_URL', '/'),
+    'start_url' => env('NATIVEPHP_START_URL', '/frontend'),
 
     /*
      * |--------------------------------------------------------------------------

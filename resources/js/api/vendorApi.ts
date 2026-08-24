@@ -7,6 +7,7 @@ export interface VendorProfile {
     address?: string;
     gst_number?: string;
     approval_status: 'pending' | 'approved' | 'rejected';
+    rejection_reason?: string;
     kyc_status: 'pending' | 'verified' | 'rejected';
     vendor_type?: 'originator' | 'executor' | 'both';
     industries: { id: number; name: string }[];

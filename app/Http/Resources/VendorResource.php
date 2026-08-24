@@ -2,8 +2,8 @@
 
 namespace App\Http\Resources;
 
-use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
+use Illuminate\Http\Request;
 
 class VendorResource extends JsonResource
 {
@@ -26,7 +26,7 @@ class VendorResource extends JsonResource
             'contact_person' => $this->contact_person,
             'address' => $this->address,
             'gst_number' => $this->gst_number,
-            'vendor_type' => $this->vendor_type,
+            // 'vendor_type' => $this->vendor_type,
             'kyc_status' => $this->kyc_status,
             'approval_status' => $this->approval_status,
             'industries' => $this->whenLoaded('industries', function () {

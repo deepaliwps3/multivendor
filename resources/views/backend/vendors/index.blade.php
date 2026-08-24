@@ -56,7 +56,7 @@
                                         <th>Business Name</th>
                                         <th>Contact Person</th>
                                         <th>GST Number</th>
-                                        <th>Type</th>
+                                        <th>Role</th>
                                         <th>KYC Status</th>
                                         <th>Approval Status</th>
                                         <th>Actions</th>

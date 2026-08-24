@@ -81,15 +81,16 @@
     <script src="{{ asset('assets/extra-assets/extra-libs/datatables.net-bs4/js/dataTables.bootstrap4.min.js') }}">
     </script>
 
-    <!-- Dashboard charts & maps plugin js -->
-    <script src="{{ asset('assets/extra-assets/extra-libs/c3/d3.min.js') }}"></script>
-    <script src="{{ asset('assets/extra-assets/extra-libs/c3/c3.min.js') }}"></script>
-    <script src="{{ asset('assets/extra-assets/libs/chartist/dist/chartist.min.js') }}"></script>
-    <script src="{{ asset('assets/extra-assets/libs/chartist-plugin-tooltips/dist/chartist-plugin-tooltip.min.js') }}">
-    </script>
-    <script src="{{ asset('assets/extra-assets/extra-libs/jvector/jquery-jvectormap-2.0.2.min.js') }}"></script>
-    <script src="{{ asset('assets/extra-assets/extra-libs/jvector/jquery-jvectormap-world-mill-en.js') }}"></script>
-    <script src="{{ asset('assets/dist/js/pages/dashboards/dashboard1.min.js') }}"></script>
+    <!-- Dashboard charts & maps plugin js (Only loaded on Dashboard) -->
+    @if (request()->routeIs('dashboard'))
+        <script src="{{ asset('assets/extra-assets/extra-libs/c3/d3.min.js') }}"></script>
+        <script src="{{ asset('assets/extra-assets/extra-libs/c3/c3.min.js') }}"></script>
+        <script src="{{ asset('assets/extra-assets/libs/chartist/dist/chartist.min.js') }}"></script>
+        <script src="{{ asset('assets/extra-assets/libs/chartist-plugin-tooltips/dist/chartist-plugin-tooltip.min.js') }}"></script>
+        <script src="{{ asset('assets/extra-assets/extra-libs/jvector/jquery-jvectormap-2.0.2.min.js') }}"></script>
+        <script src="{{ asset('assets/extra-assets/extra-libs/jvector/jquery-jvectormap-world-mill-en.js') }}"></script>
+        <script src="{{ asset('assets/dist/js/pages/dashboards/dashboard1.min.js') }}"></script>
+    @endif
     @stack('scripts')
 </body>
 

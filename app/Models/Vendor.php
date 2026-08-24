@@ -19,6 +19,7 @@ class Vendor extends Model
         'gst_number',
         'kyc_status',
         'approval_status',
+        'rejection_reason',
         'vendor_type',
     ];
 

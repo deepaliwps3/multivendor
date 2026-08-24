@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\VendorRequest;
 use App\Http\Resources\VendorResource;
 use App\Models\Industry;
+use App\Models\Service;
 use App\Models\User;
 use App\Models\Vendor;
 use App\Services\Backend\VendorService;
@@ -13,8 +14,8 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
-use Throwable;
 use Yajra\DataTables\Facades\DataTables;
+use Throwable;
 
 class VendorController extends Controller
 {
@@ -48,7 +49,23 @@ class VendorController extends Controller
                     return e($row->gst_number ?? '-');
                 })
                 ->editColumn('vendor_type', function ($row) {
-                    return '<span class="badge bg-info text-capitalize">' . e($row->vendor_type) . '</span>';
+                    $roleId = (int) ($row->user?->role_id ?? 3);
+
+                    $roleName = match ($roleId) {
+                        1 => 'Superadmin',
+                        2 => 'Staff',
+                        3 => 'Vendor',
+                        default => $row->user?->role?->name ?? ucfirst($row->vendor_type),
+                    };
+
+                    $badgeClass = match ($roleId) {
+                        1 => 'bg-danger',
+                        2 => 'bg-primary',
+                        3 => 'bg-info',
+                        default => 'bg-secondary',
+                    };
+
+                    return '<span class="badge ' . $badgeClass . ' text-capitalize">' . e($roleName) . '</span>';
                 })
                 ->editColumn('kyc_status', function ($row) {
                     $badgeClass = match ($row->kyc_status) {
@@ -69,6 +86,10 @@ class VendorController extends Controller
                     return '<span class="badge ' . $badgeClass . ' text-capitalize">' . e($row->approval_status) . '</span>';
                 })
                 ->addColumn('actions', function ($row) {
+                    $showUrl = route('vendors.show', $row->id);
+                    $showBtn = '<a href="' . $showUrl . '" class="btn btn-sm btn-primary me-1">
+                                    <i data-feather="eye" class="feather-icon"></i> View
+                                </a>';
                     $editUrl = route('vendors.edit', $row->id);
                     $editBtn = '<a href="' . $editUrl . '" class="btn btn-sm btn-info me-1">
                                     <i data-feather="edit-2" class="feather-icon"></i> Edit
@@ -78,7 +99,7 @@ class VendorController extends Controller
                                     <i data-feather="trash-2" class="feather-icon"></i> Delete
                                 </button>';
 
-                    return $editBtn . $deleteBtn;
+                    return $showBtn . $editBtn . $deleteBtn;
                 })
                 ->rawColumns(['user_info', 'vendor_type', 'kyc_status', 'approval_status', 'actions'])
                 ->make(true);
@@ -93,10 +114,12 @@ class VendorController extends Controller
     public function create(): View
     {
         $vendor = new Vendor();
-        $users = User::orderBy('name')->get();
         $industries = Industry::where('status', true)->orderBy('name')->get();
+        $services = Service::with('industry')->orderBy('name')->get();
+        $selectedIndustries = [];
+        $selectedServices = [];
 
-        return view('backend.vendors.create', compact('vendor', 'users', 'industries'));
+        return view('backend.vendors.create', compact('vendor', 'industries', 'services', 'selectedIndustries', 'selectedServices'));
     }
 
     /**
@@ -124,9 +147,15 @@ class VendorController extends Controller
     /**
      * Display the specified vendor.
      */
-    public function show(Vendor $vendor): VendorResource
+    public function show(Request $request, Vendor $vendor): View|VendorResource
     {
-        return new VendorResource($vendor->load(['user', 'industries']));
+        $vendor->load(['user', 'industries', 'services']);
+
+        if ($request->wantsJson()) {
+            return new VendorResource($vendor);
+        }
+
+        return view('backend.vendors.show', compact('vendor'));
     }
 
     /**
@@ -134,12 +163,13 @@ class VendorController extends Controller
      */
     public function edit(Vendor $vendor): View
     {
-        $vendor->load('industries');
-        $users = User::orderBy('name')->get();
+        $vendor->load(['user', 'industries', 'services']);
         $industries = Industry::where('status', true)->orderBy('name')->get();
+        $services = Service::with('industry')->orderBy('name')->get();
         $selectedIndustries = $vendor->industries->pluck('id')->toArray();
+        $selectedServices = $vendor->services->pluck('id')->toArray();
 
-        return view('backend.vendors.create', compact('vendor', 'users', 'industries', 'selectedIndustries'));
+        return view('backend.vendors.create', compact('vendor', 'industries', 'services', 'selectedIndustries', 'selectedServices'));
     }
 
     /**

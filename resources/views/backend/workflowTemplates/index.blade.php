@@ -15,6 +15,114 @@
             </div>
             <div class="col-12 col-sm-5 align-self-center mt-3 mt-sm-0">
                 <div class="customize-input float-sm-end">
+                    <a href="{{ route('workflow-templates.create') }}" class="btn btn-primary rounded-pill px-4 w-100 w-sm-auto">
+                        <i data-feather="plus" class="feather-icon me-1"></i> Add Workflow Template
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container-fluid">
+        @if (session('success'))
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                {{ session('success') }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        @endif
+
+        @if (session('error'))
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                {{ session('error') }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        @endif
+
+        <div class="row">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-body">
+                        <h4 class="card-title">Workflow Templates List</h4>
+                        <h6 class="card-subtitle mb-4 text-muted">Manage workflow templates and their stages with
+                            server-side DataTables.</h6>
+                        <div class="table-responsive">
+                            <table id="workflow-templates-table"
+                                class="table border table-striped table-bordered text-nowrap w-100">
+                                <thead>
+                                    <tr>
+                                        <th>S.No</th>
+                                        <th>Name</th>
+                                        <th>Industry</th>
+                                        <th>Stages</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    @push('scripts')
+        <script>
+            $(document).ready(function () {
+                var table = $('#workflow-templates-table').DataTable({
+                    processing: true,
+                    serverSide: true,
+                    ajax: "{{ route('workflow-templates.index') }}",
+                    columns: [
+                        { data: 'DT_RowIndex', name: 'DT_RowIndex', orderable: false, searchable: false },
+                        { data: 'name', name: 'name' },
+                        { data: 'industry_name', name: 'industry.name' },
+                        { data: 'stages_count', name: 'stages_count', orderable: false, searchable: false },
+                        { data: 'actions', name: 'actions', orderable: false, searchable: false }
+                    ],
+                    drawCallback: function () {
+                        if (typeof feather !== 'undefined') feather.replace();
+                    }
+                });
+
+                $(document).on('click', '.delete-workflow-template-btn', function () {
+                    if (confirm('Are you sure you want to delete this workflow template?')) {
+                        var url = $(this).data('url');
+                        $.ajax({
+                            url: url,
+                            type: 'POST',
+                            data: { _token: "{{ csrf_token() }}", _method: "DELETE" },
+                            success: function () { table.ajax.reload(null, false); },
+                            error: function () { alert('Failed to delete workflow template.'); }
+                        });
+                    }
+                });
+            });
+        </script>
+    @endpush
+</x-app-layout>
+
+
+
+
+
+{{-- <x-app-layout>
+    <!-- Breadcrumb -->
+    <div class="page-breadcrumb">
+        <div class="row align-items-center">
+            <div class="col-12 col-sm-7 align-self-center">
+                <h3 class="page-title text-truncate text-dark font-weight-medium mb-1">Workflow Templates</h3>
+                <div class="d-flex align-items-center">
+                    <nav aria-label="breadcrumb">
+                        <ol class="breadcrumb m-0 p-0">
+                            <li class="breadcrumb-item"><a href="{{ route('dashboard') }}">Dashboard</a></li>
+                            <li class="breadcrumb-item text-muted active" aria-current="page">Workflow Templates</li>
+                        </ol>
+                    </nav>
+                </div>
+            </div>
+            <div class="col-12 col-sm-5 align-self-center mt-3 mt-sm-0">
+                <div class="customize-input float-sm-end">
                     <button type="button" class="btn btn-primary rounded-pill px-4 w-100 w-sm-auto"
                         data-bs-toggle="modal" data-bs-target="#addWorkflowTemplateModal">
                         <i data-feather="plus" class="feather-icon me-1"></i> Add Workflow Template
@@ -348,4 +456,4 @@
             });
         </script>
     @endpush
-</x-app-layout>
+</x-app-layout> --}}

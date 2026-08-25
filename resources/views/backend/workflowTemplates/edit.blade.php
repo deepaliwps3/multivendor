@@ -1,0 +1,109 @@
+<x-app-layout>
+    <div class="page-breadcrumb">
+        <div class="row align-items-center">
+            <div class="col-12">
+                <h3 class="page-title text-truncate text-dark font-weight-medium mb-1">Edit Workflow Template</h3>
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb m-0 p-0">
+                        <li class="breadcrumb-item"><a href="{{ route('dashboard') }}">Dashboard</a></li>
+                        <li class="breadcrumb-item"><a href="{{ route('workflow-templates.index') }}">Workflow Templates</a></li>
+                        <li class="breadcrumb-item text-muted active" aria-current="page">Edit</li>
+                    </ol>
+                </nav>
+            </div>
+        </div>
+    </div>
+
+    <div class="container-fluid">
+        @if ($errors->any())
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <ul class="mb-0">
+                    @foreach ($errors->all() as $error)
+                        <li>{{ $error }}</li>
+                    @endforeach
+                </ul>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        @endif
+
+        <div class="row">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-body">
+                        <form id="workflowTemplateForm"
+                            action="{{ route('workflow-templates.update', $workflowTemplate->id) }}" method="POST">
+                            @csrf
+                            @method('PUT')
+
+                            <div class="mb-3">
+                                <label for="industry_id" class="form-label font-weight-medium">Industry</label>
+                                <select class="form-select" id="industry_id" name="industry_id" required>
+                                    <option value="" disabled>Select Industry</option>
+                                    @foreach ($industries as $industry)
+                                        <option value="{{ $industry->id }}"
+                                            {{ old('industry_id', $workflowTemplate->industry_id) == $industry->id ? 'selected' : '' }}>
+                                            {{ $industry->name }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="name" class="form-label font-weight-medium">Template Name</label>
+                                <input type="text" class="form-control" id="name" name="name"
+                                    value="{{ old('name', $workflowTemplate->name) }}" required>
+                            </div>
+
+                            <hr>
+
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <label class="form-label font-weight-medium mb-0">Stages</label>
+                                <button type="button" id="addStageBtn" class="btn btn-sm btn-outline-primary">
+                                    <i data-feather="plus" class="feather-icon me-1"></i> Add Stage
+                                </button>
+                            </div>
+                            <div id="industryError" class="text-danger small mb-2 d-none">
+                                Please select an industry first.
+                            </div>
+                            <div id="stagesContainer"></div>
+
+                            <div class="mt-4 d-flex justify-content-end gap-2">
+                                <a href="{{ route('workflow-templates.index') }}" class="btn btn-secondary">Cancel</a>
+                                <button type="submit" id="saveWorkflowTemplateBtn" class="btn btn-primary" disabled>
+                                    Update Workflow Template
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {{-- @push('scripts')
+        <script>
+            window.workflowTemplateFormConfig = {
+                servicesUrlTemplate: "{{ route('industries.services', ['industry' => '__INDUSTRY_ID__']) }}",
+                excludeTemplateId: {{ $workflowTemplate->id }},
+                initialStages: @json($workflowTemplate->stages->map(fn ($stage) => [
+                    'id' => $stage->id,
+                    'service_id' => $stage->service_id,
+                    'sequence_no' => $stage->sequence_no,
+                    'is_mandatory' => (bool) $stage->is_mandatory,
+                ]))
+            };
+        </script>
+        <script src="{{ asset('js/workflow-template-form.js') }}"></script>
+    @endpush --}}
+
+    @push('scripts')
+        <script>
+            window.workflowTemplateFormConfig = {
+                servicesUrlTemplate: "{{ route('industries.services', ['industry' => '__INDUSTRY_ID__']) }}",
+                excludeTemplateId: {{ $workflowTemplate->id }},
+                initialStages: @json($stagesForJs)
+            };
+        </script>
+        <script src="{{ asset('js/workflow-template-form.js') }}"></script>
+    @endpush
+</x-app-layout>

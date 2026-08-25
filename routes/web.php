@@ -18,6 +18,8 @@ Route::middleware('auth', 'verified')->group(function () {
         return view('backend.dashboard');
     })->name('dashboard');
     Route::resource('industries', IndustryController::class);
+    Route::get('industries/{industry}/services', [WorkflowTemplateController::class, 'servicesByIndustry'])
+        ->name('industries.services');
     Route::resource('services', ServiceController::class);
     Route::resource('workflow-templates', WorkflowTemplateController::class);
     Route::resource('vendors', VendorController::class);

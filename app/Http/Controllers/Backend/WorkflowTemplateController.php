@@ -8,7 +8,6 @@ use App\Http\Resources\WorkflowTemplateResource;
 use App\Models\Industry;
 use App\Models\Service;
 use App\Models\WorkflowTemplate;
-use App\Models\WorkflowTemplateStage;
 use App\Services\Backend\WorkflowTemplateService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
@@ -43,27 +42,22 @@ class WorkflowTemplateController extends Controller
                     return '<span class="badge bg-secondary">' . $row->stages_count . '</span>';
                 })
                 ->addColumn('actions', function ($row) {
-                    // $stages = $row->stages->map(function ($stage) {
-                    //     return [
-                    //         'id' => $stage->id,
-                    //         'service_id' => $stage->service_id,
-                    //         'sequence_no' => $stage->sequence_no,
-                    //         'is_mandatory' => (bool) $stage->is_mandatory,
-                    //     ];
-                    // });
+                    $stages = $row->stages->map(function ($stage) {
+                        return [
+                            'id' => $stage->id,
+                            'service_id' => $stage->service_id,
+                            'sequence_no' => $stage->sequence_no,
+                            'is_mandatory' => (bool) $stage->is_mandatory,
+                        ];
+                    });
 
-                    // $editBtn = '<button class="btn btn-sm btn-info me-1 edit-workflow-template-btn"
-                    //                 data-id="' . $row->id . '"
-                    //                 data-name="' . e($row->name) . '"
-                    //                 data-industry-id="' . $row->industry_id . '"
-                    //                 data-stages="' . e($stages->toJson()) . '">
-                    //                 <i data-feather="edit-2" class="feather-icon"></i> Edit
-                    //             </button>';
-                    $editUrl = route('workflow-templates.edit', $row->id);
-                    $editBtn = '<a href="' . $editUrl . '" class="btn btn-sm btn-info me-1">
+                    $editBtn = '<button class="btn btn-sm btn-info me-1 edit-workflow-template-btn"
+                                    data-id="' . $row->id . '"
+                                    data-name="' . e($row->name) . '"
+                                    data-industry-id="' . $row->industry_id . '"
+                                    data-stages="' . e($stages->toJson()) . '">
                                     <i data-feather="edit-2" class="feather-icon"></i> Edit
-                                </a>';
-
+                                </button>';
                     $deleteUrl = route('workflow-templates.destroy', $row->id);
                     $deleteBtn = '<button class="btn btn-sm btn-danger delete-workflow-template-btn" data-url="' . $deleteUrl . '">
                                     <i data-feather="trash-2" class="feather-icon"></i> Delete
@@ -75,21 +69,9 @@ class WorkflowTemplateController extends Controller
                 ->make(true);
         }
 
-        return view('backend.workflowTemplates.index');
-
-        // return view('backend.workflowTemplates.index', [
-        //     'industries' => Industry::select('id', 'name')->orderBy('name')->get(),
-        //     'services' => Service::select('id', 'name')->orderBy('name')->get(),
-        // ]);
-    }
-
-    /**
-     * Show the create page.
-     */
-    public function create(): View
-    {
-        return view('backend.workflowTemplates.create', [
+        return view('backend.workflowTemplates.index', [
             'industries' => Industry::select('id', 'name')->orderBy('name')->get(),
+            'services' => Service::select('id', 'name')->orderBy('name')->get(),
         ]);
     }
 
@@ -113,39 +95,6 @@ class WorkflowTemplateController extends Controller
 
             return back()->withInput()->with('error', 'Failed to create workflow template. Please try again.');
         }
-    }
-
-    /**
-     * Show the edit page.
-     */
-    // public function edit(WorkflowTemplate $workflowTemplate): View
-    // {
-    //     $workflowTemplate = $this->workflowTemplateService->getTemplateWithStages($workflowTemplate);
-
-    //     return view('backend.workflowTemplates.edit', [
-    //         'industries' => Industry::select('id', 'name')->orderBy('name')->get(),
-    //         'workflowTemplate' => $workflowTemplate,
-    //     ]);
-    // }
-
-    public function edit(WorkflowTemplate $workflowTemplate): View
-    {
-        $workflowTemplate = $this->workflowTemplateService->getTemplateWithStages($workflowTemplate);
-
-        $stagesForJs = $workflowTemplate->stages->map(function ($stage) {
-            return [
-                'id' => $stage->id,
-                'service_id' => $stage->service_id,
-                'sequence_no' => $stage->sequence_no,
-                'is_mandatory' => (bool) $stage->is_mandatory,
-            ];
-        })->values();
-
-        return view('backend.workflowTemplates.edit', [
-            'industries' => Industry::select('id', 'name')->orderBy('name')->get(),
-            'workflowTemplate' => $workflowTemplate,
-            'stagesForJs' => $stagesForJs,
-        ]);
     }
 
     /**
@@ -190,38 +139,5 @@ class WorkflowTemplateController extends Controller
 
             return back()->with('error', 'Failed to delete workflow template. Please try again.');
         }
-    }
-
-    /**
-     * Return services for a given industry, flagged with whether each is
-     * already used in a saved workflow template stage (so the frontend can
-     * disable it and force selection of a different, unused service).
-     * Pass ?exclude_template_id=X on the edit page so the template's own
-     * already-assigned services aren't disabled.
-     */
-    public function servicesByIndustry(Request $request, Industry $industry): JsonResponse
-    {
-        $usedServiceIds = WorkflowTemplateStage::whereHas('template', function ($q) use ($industry, $request) {
-            $q->where('industry_id', $industry->id);
-
-            if ($request->filled('exclude_template_id')) {
-                $q->where('id', '!=', $request->integer('exclude_template_id'));
-            }
-        })
-            ->pluck('service_id')
-            ->unique()
-            ->values();
-
-        $services = Service::where('industry_id', $industry->id)
-            ->select('id', 'name')
-            ->orderBy('name')
-            ->get()
-            ->map(fn($service) => [
-                'id' => $service->id,
-                'name' => $service->name,
-                'used' => $usedServiceIds->contains($service->id),
-            ]);
-
-        return response()->json($services);
     }
 }

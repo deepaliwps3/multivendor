@@ -12,6 +12,84 @@ class VendorDashboardController extends Controller
     /**
      * Get current authenticated user's Vendor Profile details.
      */
+    public function index(Request $request): JsonResponse
+    {
+        $user = $request->user();
+        $vendor = $user->vendor()->with('industries', 'services')->first();
+
+        if (!$vendor) {
+            return response()->json(['message' => 'Vendor profile not found'], 404);
+        }
+
+        if ($vendor->approval_status !== 'approved') {
+            return response()->json([
+                'vendor' => [
+                    'id' => $vendor->id,
+                    'business_name' => $vendor->business_name,
+                    'approval_status' => $vendor->approval_status,
+                    'rejection_reason' => $vendor->rejection_reason,
+                    'vendor_type' => $vendor->vendor_type,
+                    'industries' => $vendor->industries,
+                    'services' => $vendor->services,
+                ],
+                'alerts' => null,
+                'summary' => null,
+                'recent_activity' => [],
+            ]);
+        }
+
+        $assignedStages = method_exists($vendor, 'assignedOrderStages') ? $vendor->assignedOrderStages() : null;
+        $originatedOrders = method_exists($vendor, 'originatedOrders') ? $vendor->originatedOrders() : null;
+
+        $newAssignments = $assignedStages ? (clone $assignedStages)->where('status', 'assigned')->count() : 0;
+        $awaitingMyAssignment = $assignedStages ? (clone $assignedStages)->where('status', 'completed')->count() : 0;
+        $overdueStages = $assignedStages ? (clone $assignedStages)->where('status', 'in_progress')->where('created_at', '<', now()->subDays(3))->count() : 0;
+
+        $activeOrders = $originatedOrders ? (clone $originatedOrders)->where('status', '!=', 'completed')->count() : 0;
+        $assignedToMe = $assignedStages ? (clone $assignedStages)->whereIn('status', ['assigned', 'in_progress'])->count() : 0;
+        $earningsThisMonth = 0;
+        if (method_exists($vendor, 'paymentsReceived')) {
+            try {
+                $earningsThisMonth = $vendor->paymentsReceived()->where('status', 'released')->whereMonth('released_at', now()->month)->sum('amount');
+            } catch (\Throwable $e) {
+                $earningsThisMonth = 0;
+            }
+        }
+
+        $recentActivity = [];
+        if (method_exists($vendor, 'activityFeed')) {
+            try {
+                $recentActivity = $vendor->activityFeed()->latest()->limit(5)->get();
+            } catch (\Throwable $e) {
+                $recentActivity = [];
+            }
+        }
+
+        return response()->json([
+            'vendor' => [
+                'id' => $vendor->id,
+                'business_name' => $vendor->business_name,
+                'approval_status' => $vendor->approval_status,
+                'rejection_reason' => $vendor->rejection_reason,
+                'vendor_type' => $vendor->vendor_type,
+                'industries' => $vendor->industries,
+                'services' => $vendor->services,
+            ],
+            'alerts' => [
+                'new_assignments' => $newAssignments,
+                'awaiting_my_assignment' => $awaitingMyAssignment,
+                'overdue_stages' => $overdueStages,
+            ],
+            'summary' => [
+                'active_orders' => $activeOrders,
+                'assigned_to_me' => $assignedToMe,
+                'awaiting_assignment' => $awaitingMyAssignment,
+                'earnings_this_month' => $earningsThisMonth,
+            ],
+            'recent_activity' => $recentActivity,
+        ]);
+    }
+
     public function me(Request $request): JsonResponse
     {
         $user = $request->user();
@@ -73,8 +151,8 @@ class VendorDashboardController extends Controller
             'contact_person' => $validated['contact_person'] ?? $vendor->contact_person,
             'address' => $validated['address'] ?? $vendor->address,
             'gst_number' => $validated['gst_number'] ?? $vendor->gst_number,
-            'approval_status' => 'pending', // Resubmits for admin approval
-            'rejection_reason' => null, // Clears previous rejection reason upon resubmission
+            'approval_status' => 'pending',  // Resubmits for admin approval
+            'rejection_reason' => null,  // Clears previous rejection reason upon resubmission
         ]);
 
         if (isset($validated['industry_ids'])) {

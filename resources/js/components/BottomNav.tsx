@@ -25,33 +25,33 @@ export const BottomNav: React.FC<BottomNavProps> = ({ value, onChange }) => {
         if (path.includes("/orders")) return 1;
         if (path.includes("/assigned")) return 2;
         if (path.includes("/payments")) return 3;
-        if (path.includes("/profile")) return 4;
+        if (path.includes("/profile/edit")) return 4;
         return 0; // default to Dashboard
     };
 
     const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
         if (onChange) {
             onChange(event, newValue);
-        } else {
-            switch (newValue) {
-                case 0:
-                    navigate("/dashboard");
-                    break;
-                case 1:
-                    navigate("/orders");
-                    break;
-                case 2:
-                    navigate("/assigned");
-                    break;
-                case 3:
-                    navigate("/payments");
-                    break;
-                case 4:
-                    navigate("/profile");
-                    break;
-                default:
-                    navigate("/dashboard");
-            }
+        }
+
+        switch (newValue) {
+            case 0:
+                navigate("/dashboard");
+                break;
+            case 1:
+                navigate("/orders");
+                break;
+            case 2:
+                navigate("/assigned");
+                break;
+            case 3:
+                navigate("/payments");
+                break;
+            case 4:
+                navigate("/profile/edit");
+                break;
+            default:
+                navigate("/dashboard");
         }
     };
 
@@ -75,8 +75,24 @@ export const BottomNav: React.FC<BottomNavProps> = ({ value, onChange }) => {
                 onChange={handleTabChange}
                 sx={{
                     bgcolor: "transparent",
+                    height: 52,
                     "& .MuiBottomNavigationAction-root": {
                         color: "#94a3b8",
+                        minWidth: 0,
+                        padding: "4px 2px",
+                        "& .MuiSvgIcon-root": {
+                            fontSize: 20,
+                            mb: 0.2,
+                        },
+                        "& .MuiBottomNavigationAction-label": {
+                            fontSize: "0.65rem",
+                            lineHeight: 1.1,
+                            whiteSpace: "nowrap",
+                            "&.Mui-selected": {
+                                fontSize: "0.7rem",
+                                fontWeight: 700,
+                            },
+                        },
                         "&.Mui-selected": {
                             color: "#6366f1",
                         },

@@ -52,8 +52,8 @@ export const Register: React.FC = () => {
     // Step 2 — Industry & Service selection
     const [industries, setIndustries] = useState<Industry[]>([]);
     const [services, setServices] = useState<Service[]>([]);
-    const [selectedIndustries, setSelectedIndustries] = useState<Industry[]>(
-        [],
+    const [selectedIndustry, setSelectedIndustry] = useState<Industry | null>(
+        null,
     );
     const [selectedServices, setSelectedServices] = useState<Service[]>([]);
     const [loadingIndustries, setLoadingIndustries] = useState(false);
@@ -86,9 +86,9 @@ export const Register: React.FC = () => {
         fetchIndustries();
     }, []);
 
-    // Fetch services whenever selected industries change
+    // Fetch services whenever selected industry changes
     useEffect(() => {
-        if (selectedIndustries.length === 0) {
+        if (!selectedIndustry) {
             setServices([]);
             setSelectedServices([]);
             return;
@@ -97,11 +97,10 @@ export const Register: React.FC = () => {
         const fetchServices = async () => {
             setLoadingServices(true);
             try {
-                const industryIds = selectedIndustries.map((i) => i.id);
-                const data = await authApi.getServices(industryIds);
+                const data = await authApi.getServices([selectedIndustry.id]);
                 setServices(data);
                 // Drop any previously selected services that no longer belong
-                // to the currently selected industries
+                // to the currently selected industry
                 setSelectedServices((prev) =>
                     prev.filter((s) => data.some((d) => d.id === s.id)),
                 );
@@ -112,7 +111,7 @@ export const Register: React.FC = () => {
             }
         };
         fetchServices();
-    }, [selectedIndustries]);
+    }, [selectedIndustry]);
 
     const handleNext = () => {
         setStepError(null);
@@ -143,8 +142,8 @@ export const Register: React.FC = () => {
         resetError();
         setStepError(null);
 
-        if (selectedIndustries.length === 0) {
-            setStepError("Please select at least one industry.");
+        if (!selectedIndustry) {
+            setStepError("Please select an industry.");
             return;
         }
         if (selectedServices.length === 0) {
@@ -160,7 +159,7 @@ export const Register: React.FC = () => {
             gst_number,
             address,
             business_name: businessName,
-            industry_ids: selectedIndustries.map((i) => i.id),
+            industry_ids: [selectedIndustry.id],
             service_ids: selectedServices.map((s) => s.id),
         });
     };
@@ -525,23 +524,22 @@ export const Register: React.FC = () => {
                                     gap: 1.5,
                                 }}
                             >
-                                <Autocomplete<Industry, true, false, false>
-                                    multiple
+                                <Autocomplete<Industry, false, false, false>
                                     options={industries}
                                     getOptionLabel={(option) => option.name}
                                     isOptionEqualToValue={(option, value) =>
                                         option.id === value.id
                                     }
                                     loading={loadingIndustries}
-                                    value={selectedIndustries}
+                                    value={selectedIndustry}
                                     onChange={(_, newValue) =>
-                                        setSelectedIndustries(newValue)
+                                        setSelectedIndustry(newValue)
                                     }
                                     renderInput={(params) => (
                                         <TextField
                                             {...params}
-                                            label="Select Industries *"
-                                            placeholder="Jewellery, Textile..."
+                                            label="Select Industry *"
+                                            placeholder="Select 1 Industry..."
                                             margin="dense"
                                         />
                                     )}
@@ -559,13 +557,13 @@ export const Register: React.FC = () => {
                                     onChange={(_, newValue) =>
                                         setSelectedServices(newValue)
                                     }
-                                    disabled={selectedIndustries.length === 0}
+                                    disabled={!selectedIndustry}
                                     renderInput={(params) => (
                                         <TextField
                                             {...params}
                                             label="Select Services *"
                                             placeholder={
-                                                selectedIndustries.length
+                                                selectedIndustry
                                                     ? "Making, Polishing..."
                                                     : "Select an industry first"
                                             }

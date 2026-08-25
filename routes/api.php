@@ -8,10 +8,10 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
 /*
-|--------------------------------------------------------------------------
-| React Frontend & Mobile App Auth API Routes
-|--------------------------------------------------------------------------
-*/
+ * |--------------------------------------------------------------------------
+ * | React Frontend & Mobile App Auth API Routes
+ * |--------------------------------------------------------------------------
+ */
 Route::prefix('auth')->group(function () {
     Route::post('/login', [AuthApiController::class, 'login']);
     Route::post('/register', [AuthApiController::class, 'register']);
@@ -23,16 +23,17 @@ Route::prefix('auth')->group(function () {
 });
 
 /*
-|--------------------------------------------------------------------------
-| Vendor Portal Dashboard Routes
-|--------------------------------------------------------------------------
-*/
+ * |--------------------------------------------------------------------------
+ * | Vendor Portal Dashboard Routes
+ * |--------------------------------------------------------------------------
+ */
 Route::middleware('auth:sanctum')->prefix('vendor')->group(function () {
     Route::get('/me', [VendorDashboardController::class, 'me']);
     Route::put('/profile', [VendorDashboardController::class, 'updateProfile']);
     Route::get('/dashboard/alerts', [VendorDashboardController::class, 'alerts']);
     Route::get('/dashboard/summary', [VendorDashboardController::class, 'summary']);
     Route::get('/dashboard/activity', [VendorDashboardController::class, 'activity']);
+    Route::get('/dashboard', [VendorDashboardController::class, 'index']);
 });
 
 // Public Industry & Services lookup routes for vendor onboarding
@@ -44,10 +45,10 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 });
 
 /*
-|--------------------------------------------------------------------------
-| Web Admin Backend API Routes
-|--------------------------------------------------------------------------
-*/
+ * |--------------------------------------------------------------------------
+ * | Web Admin Backend API Routes
+ * |--------------------------------------------------------------------------
+ */
 Route::prefix('admin/auth')->group(function () {
     Route::post('/login', [AdminAuthController::class, 'login']);
 

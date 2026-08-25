@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
     ArrowBack as ArrowBackIcon,
@@ -20,8 +20,8 @@ import {
     TextField,
     Typography,
 } from "@mui/material";
-import authApi, { Industry, Service } from "../api/authApi";
-import vendorApi from "../api/vendorApi";
+import { authApi, Industry, Service } from "../api/authApi";
+import { vendorApi } from "../api/vendorApi";
 
 export const EditProfile: React.FC = () => {
     const navigate = useNavigate();
@@ -40,8 +40,8 @@ export const EditProfile: React.FC = () => {
     const [contactPerson, setContactPerson] = useState("");
     const [address, setAddress] = useState("");
     const [gstNumber, setGstNumber] = useState("");
-    const [selectedIndustries, setSelectedIndustries] = useState<Industry[]>(
-        [],
+    const [selectedIndustry, setSelectedIndustry] = useState<Industry | null>(
+        null,
     );
     const [selectedServices, setSelectedServices] = useState<Service[]>([]);
 
@@ -64,13 +64,13 @@ export const EditProfile: React.FC = () => {
                 setAddress(profile.address || "");
                 setGstNumber(profile.gst_number || "");
 
-                // Map current selected industries & services
-                const profileIndIds = profile.industries.map((i) => i.id);
-                const profileSrvIds = profile.services.map((s) => s.id);
+                // Map single selected industry & services
+                const profileIndId = profile.industries?.[0]?.id;
+                const currentInd =
+                    indList.find((i) => i.id === profileIndId) || null;
+                setSelectedIndustry(currentInd);
 
-                setSelectedIndustries(
-                    indList.filter((i) => profileIndIds.includes(i.id)),
-                );
+                const profileSrvIds = profile.services.map((s) => s.id);
                 setSelectedServices(
                     srvList.filter((s) => profileSrvIds.includes(s.id)),
                 );
@@ -85,6 +85,14 @@ export const EditProfile: React.FC = () => {
         loadProfileAndLookups();
     }, []);
 
+    // Filter available services based on single selected industry
+    const filteredServices = useMemo(() => {
+        if (!selectedIndustry) return [];
+        return allServices.filter(
+            (s) => !s.industry_id || s.industry_id === selectedIndustry.id,
+        );
+    }, [allServices, selectedIndustry]);
+
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setError(null);
@@ -96,7 +104,7 @@ export const EditProfile: React.FC = () => {
                 contact_person: contactPerson,
                 address: address,
                 gst_number: gstNumber,
-                industry_ids: selectedIndustries.map((i) => i.id),
+                industry_ids: selectedIndustry ? [selectedIndustry.id] : [],
                 service_ids: selectedServices.map((s) => s.id),
             };
 
@@ -309,7 +317,7 @@ export const EditProfile: React.FC = () => {
                                 }}
                             />
 
-                            {/* Industries Multiselect */}
+                            {/* Industry Single Select */}
                             <Box>
                                 <Typography
                                     variant="caption"
@@ -320,36 +328,22 @@ export const EditProfile: React.FC = () => {
                                         display: "block",
                                     }}
                                 >
-                                    Industries:
+                                    Industry:
                                 </Typography>
-                                <Autocomplete<Industry, true, false, false>
-                                    multiple
+                                <Autocomplete<Industry, false, false, false>
                                     options={allIndustries}
                                     getOptionLabel={(option) => option.name}
-                                    value={selectedIndustries}
+                                    value={selectedIndustry}
                                     onChange={(_, newValue) =>
-                                        setSelectedIndustries(newValue)
+                                        setSelectedIndustry(newValue)
                                     }
                                     isOptionEqualToValue={(option, val) =>
                                         option.id === val.id
                                     }
-                                    renderOption={(
-                                        props,
-                                        option,
-                                        { selected },
-                                    ) => (
-                                        <li {...props} key={option.id}>
-                                            <Checkbox
-                                                style={{ marginRight: 8 }}
-                                                checked={selected}
-                                            />
-                                            {option.name}
-                                        </li>
-                                    )}
                                     renderInput={(params) => (
                                         <TextField
                                             {...params}
-                                            placeholder="Select Industries..."
+                                            placeholder="Select Industry..."
                                         />
                                     )}
                                 />
@@ -370,7 +364,7 @@ export const EditProfile: React.FC = () => {
                                 </Typography>
                                 <Autocomplete<Service, true, false, false>
                                     multiple
-                                    options={allServices}
+                                    options={filteredServices}
                                     getOptionLabel={(option) => option.name}
                                     value={selectedServices}
                                     onChange={(_, newValue) =>
@@ -379,6 +373,7 @@ export const EditProfile: React.FC = () => {
                                     isOptionEqualToValue={(option, val) =>
                                         option.id === val.id
                                     }
+                                    disabled={!selectedIndustry}
                                     renderOption={(
                                         props,
                                         option,
@@ -395,7 +390,11 @@ export const EditProfile: React.FC = () => {
                                     renderInput={(params) => (
                                         <TextField
                                             {...params}
-                                            placeholder="Select Services..."
+                                            placeholder={
+                                                selectedIndustry
+                                                    ? "Select Services..."
+                                                    : "Select an industry first"
+                                            }
                                         />
                                     )}
                                 />

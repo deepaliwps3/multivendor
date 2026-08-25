@@ -11,7 +11,6 @@ import {
     Notifications as NotificationsIcon,
     Payment as PaymentIcon,
     Settings as SettingsIcon,
-    SupportAgent as SupportIcon,
     Warning as WarningIcon,
 } from "@mui/icons-material";
 import {
@@ -35,6 +34,7 @@ import {
 import useAuth from "../hooks/useAuth";
 import vendorApi, {
     ActivityItem,
+    AssignedStageItem,
     DashboardAlerts,
     DashboardSummary,
     VendorProfile,
@@ -54,6 +54,7 @@ export const Dashboard: React.FC = () => {
         null,
     );
     const [activityData, setActivityData] = useState<ActivityItem[]>([]);
+    const [assignedData, setAssignedData] = useState<AssignedStageItem[]>([]);
 
     // Bottom Navigation tab state
     const [navTab, setNavTab] = useState(0);
@@ -66,14 +67,17 @@ export const Dashboard: React.FC = () => {
                 setVendorProfile(profile);
 
                 if (profile.approval_status === "approved") {
-                    const [alerts, summary, activity] = await Promise.all([
-                        vendorApi.getAlerts(),
-                        vendorApi.getSummary(),
-                        vendorApi.getActivity(),
-                    ]);
+                    const [alerts, summary, activity, assigned] =
+                        await Promise.all([
+                            vendorApi.getAlerts(),
+                            vendorApi.getSummary(),
+                            vendorApi.getActivity(),
+                            vendorApi.getAssigned(),
+                        ]);
                     setAlertsData(alerts);
                     setSummaryData(summary);
                     setActivityData(activity);
+                    setAssignedData(assigned);
                 }
             } catch (err) {
                 console.error("Failed to load vendor dashboard data", err);
@@ -103,10 +107,9 @@ export const Dashboard: React.FC = () => {
 
     const isApproved = vendorProfile?.approval_status === "approved";
     const isRejected = vendorProfile?.approval_status === "rejected";
-    const vendorType = vendorProfile?.vendor_type || "both";
 
     /* =========================================================================
-       SUB-COMPONENTS FOR DYNAMIC SECTION ORDERING
+       SUB-COMPONENTS
        ========================================================================= */
 
     // Section 2: Action Needed Banner
@@ -146,54 +149,71 @@ export const Dashboard: React.FC = () => {
 
                 <Stack spacing={1} sx={{ pl: 1 }}>
                     {alertsData.new_assignments > 0 && (
-                        <Typography
-                            variant="body2"
-                            sx={{
-                                display: "flex",
-                                alignItems: "center",
-                                gap: 1,
-                            }}
+                        <Box
+                            onClick={() => navigate("/assigned")}
+                            sx={{ cursor: "pointer" }}
                         >
-                            📥{" "}
-                            <strong>
-                                {alertsData.new_assignments} new order
-                            </strong>{" "}
-                            assigned to you
-                        </Typography>
+                            <Typography
+                                variant="body2"
+                                sx={{
+                                    display: "flex",
+                                    alignItems: "center",
+                                    gap: 1,
+                                }}
+                            >
+                                📥{" "}
+                                <strong>
+                                    {alertsData.new_assignments} new order
+                                </strong>{" "}
+                                assigned to you
+                            </Typography>
+                        </Box>
                     )}
                     {alertsData.awaiting_my_assignment > 0 && (
-                        <Typography
-                            variant="body2"
-                            sx={{
-                                display: "flex",
-                                alignItems: "center",
-                                gap: 1,
-                            }}
+                        <Box
+                            onClick={() => navigate("/assigned")}
+                            sx={{ cursor: "pointer" }}
                         >
-                            ➡️{" "}
-                            <strong>
-                                {alertsData.awaiting_my_assignment} stages
-                                completed
-                            </strong>{" "}
-                            – assign next vendor
-                        </Typography>
+                            <Typography
+                                variant="body2"
+                                sx={{
+                                    display: "flex",
+                                    alignItems: "center",
+                                    gap: 1,
+                                }}
+                            >
+                                ➡️{" "}
+                                <strong>
+                                    {alertsData.awaiting_my_assignment} stages
+                                    completed
+                                </strong>{" "}
+                                – assign next vendor
+                            </Typography>
+                        </Box>
                     )}
                     {alertsData.overdue_stages > 0 && (
-                        <Typography
-                            variant="body2"
-                            sx={{
-                                display: "flex",
-                                alignItems: "center",
-                                gap: 1,
-                                color: "#fca5a5",
-                            }}
+                        <Box
+                            onClick={() => navigate("/assigned")}
+                            sx={{ cursor: "pointer" }}
                         >
-                            ⏰{" "}
-                            <strong>
-                                {alertsData.overdue_stages} stage overdue
-                            </strong>{" "}
-                            ({alertsData.overdue_details})
-                        </Typography>
+                            <Typography
+                                variant="body2"
+                                sx={{
+                                    display: "flex",
+                                    alignItems: "center",
+                                    gap: 1,
+                                    color: "#fca5a5",
+                                }}
+                            >
+                                ⏰{" "}
+                                <strong>
+                                    {alertsData.overdue_stages} stage overdue
+                                </strong>
+                                {alertsData.overdue_details
+                                    ? ` (${alertsData.overdue_details})`
+                                    : ""}
+                            </Typography>
+                        </Box>
                     )}
                 </Stack>
             </Paper>
@@ -204,10 +224,12 @@ export const Dashboard: React.FC = () => {
         <Grid container spacing={2}>
             <Grid size={{ xs: 6, sm: 3 }}>
                 <Card
+                    onClick={() => navigate("/orders")}
                     sx={{
                         bgcolor: "rgba(30, 41, 59, 0.8)",
                         border: "1px solid rgba(255, 255, 255, 0.1)",
                         borderRadius: 3,
+                        cursor: "pointer",
                     }}
                 >
                     <CardContent sx={{ textAlign: "center", py: 3 }}>
@@ -222,7 +244,7 @@ export const Dashboard: React.FC = () => {
                             variant="h4"
                             sx={{ fontWeight: 800, mt: 1, color: "#6366f1" }}
                         >
-                            {summaryData?.active_orders ?? 12}
+                            {summaryData?.active_orders ?? 0}
                         </Typography>
                     </CardContent>
                 </Card>
@@ -230,10 +252,12 @@ export const Dashboard: React.FC = () => {
 
             <Grid size={{ xs: 6, sm: 3 }}>
                 <Card
+                    onClick={() => navigate("/assigned")}
                     sx={{
                         bgcolor: "rgba(30, 41, 59, 0.8)",
                         border: "1px solid rgba(255, 255, 255, 0.1)",
                         borderRadius: 3,
+                        cursor: "pointer",
                     }}
                 >
                     <CardContent sx={{ textAlign: "center", py: 3 }}>
@@ -248,7 +272,7 @@ export const Dashboard: React.FC = () => {
                             variant="h4"
                             sx={{ fontWeight: 800, mt: 1, color: "#38bdf8" }}
                         >
-                            {summaryData?.assigned_to_me ?? 5}
+                            {summaryData?.assigned_to_me ?? 0}
                         </Typography>
                     </CardContent>
                 </Card>
@@ -256,10 +280,12 @@ export const Dashboard: React.FC = () => {
 
             <Grid size={{ xs: 6, sm: 3 }}>
                 <Card
+                    onClick={() => navigate("/assigned")}
                     sx={{
                         bgcolor: "rgba(30, 41, 59, 0.8)",
                         border: "1px solid rgba(255, 255, 255, 0.1)",
                         borderRadius: 3,
+                        cursor: "pointer",
                     }}
                 >
                     <CardContent sx={{ textAlign: "center", py: 3 }}>
@@ -274,7 +300,7 @@ export const Dashboard: React.FC = () => {
                             variant="h4"
                             sx={{ fontWeight: 800, mt: 1, color: "#f59e0b" }}
                         >
-                            {summaryData?.awaiting_my_assignment ?? 2}
+                            {summaryData?.awaiting_my_assignment ?? 0}
                         </Typography>
                     </CardContent>
                 </Card>
@@ -282,10 +308,12 @@ export const Dashboard: React.FC = () => {
 
             <Grid size={{ xs: 6, sm: 3 }}>
                 <Card
+                    onClick={() => navigate("/payments")}
                     sx={{
                         bgcolor: "rgba(30, 41, 59, 0.8)",
                         border: "1px solid rgba(255, 255, 255, 0.1)",
                         borderRadius: 3,
+                        cursor: "pointer",
                     }}
                 >
                     <CardContent sx={{ textAlign: "center", py: 3 }}>
@@ -300,7 +328,7 @@ export const Dashboard: React.FC = () => {
                             variant="h4"
                             sx={{ fontWeight: 800, mt: 1, color: "#10b981" }}
                         >
-                            {summaryData?.monthly_earnings ?? "₹42,500"}
+                            {summaryData?.monthly_earnings ?? "₹0"}
                         </Typography>
                     </CardContent>
                 </Card>
@@ -308,36 +336,32 @@ export const Dashboard: React.FC = () => {
         </Grid>
     );
 
-    // Section 4: Create Order Button (Primary or Secondary)
-    const renderCreateOrderButton = (isSecondary = false) => (
+    // Section 4: Create Order Button
+    const renderCreateOrderButton = () => (
         <Button
             fullWidth
-            variant={isSecondary ? "outlined" : "contained"}
+            variant="contained"
             size="large"
             startIcon={<AddIcon />}
+            onClick={() => navigate("/orders/create")}
             sx={{
-                py: isSecondary ? 1.4 : 1.8,
-                fontSize: isSecondary ? "0.95rem" : "1.05rem",
+                py: 1.8,
+                fontSize: "1.05rem",
                 fontWeight: 700,
                 borderRadius: 3,
-                ...(isSecondary
-                    ? { borderColor: "#6366f1", color: "#818cf8" }
-                    : {
-                          background:
-                              "linear-gradient(135deg, #6366f1 0%, #4f46e5 100%)",
-                          boxShadow: "0 8px 20px rgba(79, 70, 229, 0.4)",
-                          "&:hover": {
-                              background:
-                                  "linear-gradient(135deg, #4f46e5 0%, #4338ca 100%)",
-                          },
-                      }),
+                background: "linear-gradient(135deg, #6366f1 0%, #4f46e5 100%)",
+                boxShadow: "0 8px 20px rgba(79, 70, 229, 0.4)",
+                "&:hover": {
+                    background:
+                        "linear-gradient(135deg, #4f46e5 0%, #4338ca 100%)",
+                },
             }}
         >
             + Create New Order
         </Button>
     );
 
-    // Assigned to Me direct list for executor vendor_type
+    // Assigned to Me — only rendered if there's actual data
     const renderAssignedToList = () => (
         <Paper
             elevation={6}
@@ -348,44 +372,68 @@ export const Dashboard: React.FC = () => {
                 border: "1px solid rgba(56, 189, 248, 0.3)",
             }}
         >
-            <Typography
-                variant="h6"
-                sx={{ fontWeight: 700, mb: 1, color: "#38bdf8" }}
+            <Box
+                sx={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "center",
+                    mb: 1,
+                }}
             >
-                📋 Assigned to Me List
-            </Typography>
+                <Typography
+                    variant="h6"
+                    sx={{ fontWeight: 700, color: "#38bdf8" }}
+                >
+                    📋 Assigned to Me
+                </Typography>
+                <Button
+                    size="small"
+                    sx={{ textTransform: "none" }}
+                    onClick={() => navigate("/assigned")}
+                >
+                    View All
+                </Button>
+            </Box>
             <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
                 Active stage work assigned to your workshop:
             </Typography>
+
             <Stack spacing={1.5}>
-                <Box
-                    sx={{
-                        display: "flex",
-                        justifyContent: "space-between",
-                        bgcolor: "rgba(15, 23, 42, 0.5)",
-                        p: 1.5,
-                        borderRadius: 2,
-                    }}
-                >
-                    <Typography variant="body2" sx={{ fontWeight: 600 }}>
-                        Order #1234 — Polishing
-                    </Typography>
-                    <Chip label="In Progress" color="warning" size="small" />
-                </Box>
-                <Box
-                    sx={{
-                        display: "flex",
-                        justifyContent: "space-between",
-                        bgcolor: "rgba(15, 23, 42, 0.5)",
-                        p: 1.5,
-                        borderRadius: 2,
-                    }}
-                >
-                    <Typography variant="body2" sx={{ fontWeight: 600 }}>
-                        Order #1245 — Metal Casting
-                    </Typography>
-                    <Chip label="Assigned" color="info" size="small" />
-                </Box>
+                {assignedData.slice(0, 5).map((stage) => (
+                    <Box
+                        key={stage.id}
+                        onClick={() => navigate(`/orders/${stage.order_id}`)}
+                        sx={{
+                            display: "flex",
+                            justifyContent: "space-between",
+                            bgcolor: "rgba(15, 23, 42, 0.5)",
+                            p: 1.5,
+                            borderRadius: 2,
+                            cursor: "pointer",
+                        }}
+                    >
+                        <Typography variant="body2" sx={{ fontWeight: 600 }}>
+                            {stage.order_reference} — {stage.service_name}
+                        </Typography>
+                        <Chip
+                            label={
+                                stage.status === "in_progress"
+                                    ? "In Progress"
+                                    : stage.status === "assigned"
+                                      ? "Assigned"
+                                      : "Completed"
+                            }
+                            color={
+                                stage.status === "in_progress"
+                                    ? "warning"
+                                    : stage.status === "assigned"
+                                      ? "info"
+                                      : "success"
+                            }
+                            size="small"
+                        />
+                    </Box>
+                ))}
             </Stack>
         </Paper>
     );
@@ -412,71 +460,85 @@ export const Dashboard: React.FC = () => {
                 <Typography variant="h6" sx={{ fontWeight: 700 }}>
                     📋 Recent Activity
                 </Typography>
-                <Button size="small" sx={{ textTransform: "none" }}>
+                <Button
+                    size="small"
+                    sx={{ textTransform: "none" }}
+                    onClick={() => navigate("/activity")}
+                >
                     View All Activity
                 </Button>
             </Box>
 
             <Divider sx={{ mb: 2, borderColor: "rgba(255, 255, 255, 0.1)" }} />
 
-            <Stack spacing={2}>
-                {activityData.map((item) => (
-                    <Box
-                        key={item.id}
-                        sx={{
-                            display: "flex",
-                            alignItems: "center",
-                            justifyContent: "space-between",
-                            bgcolor: "rgba(15, 23, 42, 0.5)",
-                            p: 2,
-                            borderRadius: 2,
-                        }}
-                    >
+            {activityData.length === 0 ? (
+                <Typography variant="body2" color="text.secondary">
+                    No recent activity yet.
+                </Typography>
+            ) : (
+                <Stack spacing={2}>
+                    {activityData.map((item) => (
                         <Box
+                            key={item.id}
+                            onClick={() => navigate(`/orders/${item.order_id}`)}
                             sx={{
                                 display: "flex",
                                 alignItems: "center",
-                                gap: 1.5,
+                                justifyContent: "space-between",
+                                bgcolor: "rgba(15, 23, 42, 0.5)",
+                                p: 2,
+                                borderRadius: 2,
+                                cursor: "pointer",
                             }}
                         >
-                            {item.type === "stage_completed" && (
-                                <CheckCircleIcon sx={{ color: "#10b981" }} />
-                            )}
-                            {item.type === "payment_received" && (
-                                <PaymentIcon sx={{ color: "#f59e0b" }} />
-                            )}
-                            {item.type === "new_order_assigned" && (
-                                <AssignmentIcon sx={{ color: "#6366f1" }} />
-                            )}
-
-                            <Typography
-                                variant="body2"
-                                sx={{ fontWeight: 500 }}
+                            <Box
+                                sx={{
+                                    display: "flex",
+                                    alignItems: "center",
+                                    gap: 1.5,
+                                }}
                             >
-                                {item.title}
-                            </Typography>
-                        </Box>
+                                {item.type === "stage_completed" && (
+                                    <CheckCircleIcon
+                                        sx={{ color: "#10b981" }}
+                                    />
+                                )}
+                                {item.type === "payment_received" && (
+                                    <PaymentIcon sx={{ color: "#f59e0b" }} />
+                                )}
+                                {(item.type === "order_assigned" ||
+                                    item.type === "stage_assigned") && (
+                                    <AssignmentIcon sx={{ color: "#6366f1" }} />
+                                )}
 
-                        <Chip
-                            label={item.timestamp}
-                            size="small"
-                            variant="outlined"
-                            sx={{
-                                color: "#94a3b8",
-                                borderColor: "rgba(255, 255, 255, 0.2)",
-                            }}
-                        />
-                    </Box>
-                ))}
-            </Stack>
+                                <Typography
+                                    variant="body2"
+                                    sx={{ fontWeight: 500 }}
+                                >
+                                    {item.title}
+                                </Typography>
+                            </Box>
+
+                            <Chip
+                                label={item.timestamp}
+                                size="small"
+                                variant="outlined"
+                                sx={{
+                                    color: "#94a3b8",
+                                    borderColor: "rgba(255, 255, 255, 0.2)",
+                                }}
+                            />
+                        </Box>
+                    ))}
+                </Stack>
+            )}
         </Paper>
     );
 
     const industryNames =
-        vendorProfile?.industries.map((i) => i.name).join(", ") || "Jewellery";
+        vendorProfile?.industries.map((i) => i.name).join(", ") || "—";
     const serviceNames =
-        vendorProfile?.services.map((s) => s.name).join(", ") ||
-        "Making, Polishing";
+        vendorProfile?.services.map((s) => s.name).join(", ") || "—";
 
     return (
         <Box
@@ -485,11 +547,11 @@ export const Dashboard: React.FC = () => {
                 background:
                     "linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%)",
                 color: "#ffffff",
-                pt: { xs: "96px", sm: "80px" }, // Top padding to offset the fixed top header cleanly
+                pt: { xs: "96px", sm: "80px" },
                 paddingBottom: isApproved ? "80px" : "32px",
             }}
         >
-            {/* 100% Fixed Header Bar (Never moves during scroll) */}
+            {/* Fixed Header Bar */}
             <Box
                 sx={{
                     position: "fixed",
@@ -502,7 +564,7 @@ export const Dashboard: React.FC = () => {
                     background: "rgba(30, 41, 59, 0.95)",
                     backdropFilter: "blur(16px)",
                     borderBottom: "1px solid rgba(255, 255, 255, 0.1)",
-                    pt: { xs: 5, sm: 3 }, // Safe-area top padding for mobile status bar
+                    pt: { xs: 5, sm: 3 },
                     pb: 2,
                     px: { xs: 2, sm: 4 },
                 }}
@@ -533,7 +595,7 @@ export const Dashboard: React.FC = () => {
                                 color="text.secondary"
                             >
                                 {isApproved
-                                    ? `Vendor Dashboard • Role: ${vendorType.toUpperCase()}`
+                                    ? "Vendor Dashboard"
                                     : "Account Verification"}
                             </Typography>
                         </Box>
@@ -551,9 +613,14 @@ export const Dashboard: React.FC = () => {
                                         color="inherit"
                                         size="small"
                                         sx={{ p: 0.5 }}
+                                        onClick={() =>
+                                            navigate("/notifications")
+                                        }
                                     >
                                         <Badge
-                                            badgeContent={3}
+                                            badgeContent={
+                                                alertsData?.new_assignments || 0
+                                            }
                                             color="error"
                                             sx={{
                                                 "& .MuiBadge-badge": {
@@ -574,6 +641,7 @@ export const Dashboard: React.FC = () => {
                                         color="inherit"
                                         size="small"
                                         sx={{ p: 0.5 }}
+                                        onClick={() => navigate("/profile")}
                                     >
                                         <SettingsIcon sx={{ fontSize: 18 }} />
                                     </IconButton>
@@ -597,7 +665,7 @@ export const Dashboard: React.FC = () => {
             {/* MAIN CONTENT AREA */}
             <Container maxWidth="lg" sx={{ mt: 3 }}>
                 {!isApproved ? (
-                    /* STATE 1: Pending / Rejected Approval View */
+                    /* STATE 1: Pending / Rejected View */
                     <Container maxWidth="sm" disableGutters>
                         <Paper
                             elevation={16}
@@ -612,7 +680,6 @@ export const Dashboard: React.FC = () => {
                             }}
                         >
                             {isRejected ? (
-                                /* REJECTED STATE HEADER */
                                 <Box sx={{ textAlign: "center", mb: 3 }}>
                                     <Box
                                         sx={{
@@ -677,7 +744,6 @@ export const Dashboard: React.FC = () => {
                                     </Alert>
                                 </Box>
                             ) : (
-                                /* PENDING STATE HEADER */
                                 <Box sx={{ textAlign: "center", mb: 3 }}>
                                     <Box
                                         sx={{
@@ -737,8 +803,9 @@ export const Dashboard: React.FC = () => {
                                         }}
                                     >
                                         Your registration request is in queue
-                                        for admin verification. Profile editing
-                                        is locked while under review.
+                                        for admin verification. You can still
+                                        update your details below if something
+                                        needs correcting.
                                     </Alert>
                                 </Box>
                             )}
@@ -837,93 +904,44 @@ export const Dashboard: React.FC = () => {
                                 </Stack>
                             </Box>
 
-                            <Grid container spacing={1.5}>
-                                {isRejected ? (
-                                    <>
-                                        <Grid size={{ xs: 12, sm: 6 }}>
-                                            <Button
-                                                fullWidth
-                                                variant="contained"
-                                                color="primary"
-                                                startIcon={<EditIcon />}
-                                                onClick={() =>
-                                                    navigate("/profile/edit")
-                                                }
-                                                sx={{
-                                                    py: 1.2,
-                                                    borderRadius: 2,
-                                                    fontWeight: 700,
-                                                }}
-                                            >
-                                                Edit Profile & Resubmit
-                                            </Button>
-                                        </Grid>
-                                        <Grid size={{ xs: 12, sm: 6 }}>
-                                            <Button
-                                                fullWidth
-                                                variant="outlined"
-                                                color="error"
-                                                startIcon={<LogoutIcon />}
-                                                onClick={logout}
-                                                sx={{
-                                                    py: 1.2,
-                                                    borderRadius: 2,
-                                                }}
-                                            >
-                                                Logout
-                                            </Button>
-                                        </Grid>
-                                    </>
-                                ) : (
-                                    <Grid size={{ xs: 12 }}>
-                                        <Button
-                                            fullWidth
-                                            variant="outlined"
-                                            color="error"
-                                            startIcon={<LogoutIcon />}
-                                            onClick={logout}
-                                            sx={{ py: 1.2, borderRadius: 2 }}
-                                        >
-                                            Logout
-                                        </Button>
-                                    </Grid>
-                                )}
+                            <Grid container spacing={2} sx={{ mt: 2 }}>
+                                <Grid size={{ xs: 12 }}>
+                                    <Button
+                                        fullWidth
+                                        variant={
+                                            isRejected
+                                                ? "contained"
+                                                : "outlined"
+                                        }
+                                        color={
+                                            isRejected ? "primary" : "inherit"
+                                        }
+                                        startIcon={<EditIcon />}
+                                        onClick={() =>
+                                            navigate("/profile/edit")
+                                        }
+                                        sx={{
+                                            py: 1.2,
+                                            borderRadius: 2,
+                                            fontWeight: 700,
+                                        }}
+                                    >
+                                        {isRejected
+                                            ? "Edit Profile & Resubmit"
+                                            : "Edit Profile"}
+                                    </Button>
+                                </Grid>
                             </Grid>
                         </Paper>
                     </Container>
                 ) : (
-                    /* STATE 2: Approved Vendor View */
+                    /* STATE 2: Approved Vendor View — one consistent layout for everyone */
                     <Stack spacing={3}>
-                        {vendorType === "originator" && (
-                            <>
-                                {renderActionNeeded()}
-                                {renderCreateOrderButton(false)}
-                                {renderSummaryCards()}
-                                {renderActivityFeed()}
-                            </>
-                        )}
-
-                        {vendorType === "executor" && (
-                            <>
-                                {renderActionNeeded()}
-                                {renderAssignedToList()}
-                                {renderSummaryCards()}
-                                {renderCreateOrderButton(true)}
-                                {renderActivityFeed()}
-                            </>
-                        )}
-
-                        {(vendorType === "both" ||
-                            !["originator", "executor"].includes(
-                                vendorType,
-                            )) && (
-                            <>
-                                {renderActionNeeded()}
-                                {renderSummaryCards()}
-                                {renderCreateOrderButton(false)}
-                                {renderActivityFeed()}
-                            </>
-                        )}
+                        {renderActionNeeded()}
+                        {renderSummaryCards()}
+                        {renderCreateOrderButton()}
+                        {assignedData.length > 0 && renderAssignedToList()}
+                        {renderActivityFeed()}
                     </Stack>
                 )}
             </Container>

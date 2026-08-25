@@ -1,58 +1,65 @@
 import api from './axios';
 
-export interface VendorProfile {
-    id: number | null;
-    business_name: string;
-    contact_person?: string;
-    address?: string;
-    gst_number?: string;
-    approval_status: 'pending' | 'approved' | 'rejected';
-    rejection_reason?: string;
-    kyc_status: 'pending' | 'verified' | 'rejected';
-    vendor_type?: 'originator' | 'executor' | 'both';
-    industries: { id: number; name: string }[];
-    services: { id: number; name: string }[];
+export interface Industry {
+    id: number;
+    name: string;
 }
 
-export interface UpdateProfilePayload {
+export interface Service {
+    id: number;
+    name: string;
+}
+
+export interface VendorProfile {
+    id: number;
     business_name: string;
-    contact_person?: string;
-    address?: string;
-    gst_number?: string;
-    industry_ids?: number[];
-    service_ids?: number[];
+    contact_person?: string | null;
+    approval_status: 'pending' | 'approved' | 'rejected';
+    rejection_reason?: string | null;
+    // vendor_type: 'originator' | 'executor' | 'both';
+    industries: Industry[];
+    services: Service[];
 }
 
 export interface DashboardAlerts {
     new_assignments: number;
     awaiting_my_assignment: number;
     overdue_stages: number;
-    overdue_details?: string;
+    overdue_details?: string; // e.g. "Order #1234 — Polishing, 2 days overdue"
 }
 
 export interface DashboardSummary {
     active_orders: number;
     assigned_to_me: number;
     awaiting_my_assignment: number;
-    monthly_earnings: string;
+    monthly_earnings: string; // pre-formatted, e.g. "₹42,500"
 }
+
+export type ActivityType =
+    | 'stage_completed'
+    | 'payment_received'
+    | 'order_assigned'
+    | 'stage_assigned';
 
 export interface ActivityItem {
     id: number;
-    type: string;
+    type: ActivityType;
     title: string;
-    timestamp: string;
-    icon: string;
+    order_id: number;
+    timestamp: string; // pre-formatted relative time, e.g. "2h ago"
+}
+
+export interface AssignedStageItem {
+    id: number;
+    order_id: number;
+    order_reference: string; // e.g. "Order #1234"
+    service_name: string; // e.g. "Polishing"
+    status: 'assigned' | 'in_progress' | 'completed';
 }
 
 export const vendorApi = {
     getMe: async (): Promise<VendorProfile> => {
         const response = await api.get<VendorProfile>('/vendor/me');
-        return response.data;
-    },
-
-    updateProfile: async (payload: UpdateProfilePayload): Promise<{ message: string; profile: VendorProfile }> => {
-        const response = await api.put<{ message: string; profile: VendorProfile }>('/vendor/profile', payload);
         return response.data;
     },
 
@@ -68,6 +75,11 @@ export const vendorApi = {
 
     getActivity: async (): Promise<ActivityItem[]> => {
         const response = await api.get<ActivityItem[]>('/vendor/dashboard/activity');
+        return response.data;
+    },
+
+    getAssigned: async (): Promise<AssignedStageItem[]> => {
+        const response = await api.get<AssignedStageItem[]>('/vendor/dashboard/assigned');
         return response.data;
     },
 };

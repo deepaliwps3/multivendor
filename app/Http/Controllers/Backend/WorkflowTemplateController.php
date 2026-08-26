@@ -13,6 +13,7 @@ use App\Services\Backend\WorkflowTemplateService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
 use Throwable;
 use Yajra\DataTables\Facades\DataTables;
@@ -86,10 +87,17 @@ class WorkflowTemplateController extends Controller
     /**
      * Show the create page.
      */
+    // public function create(): View
+    // {
+    //     return view('backend.workflowTemplates.create', [
+    //         'industries' => Industry::select('id', 'name')->orderBy('name')->get(),
+    //     ]);
+    // }
+
     public function create(): View
     {
         return view('backend.workflowTemplates.create', [
-            'industries' => Industry::select('id', 'name')->orderBy('name')->get(),
+            'industries' => $this->getIndustriesWithAvailability(),
         ]);
     }
 
@@ -142,7 +150,8 @@ class WorkflowTemplateController extends Controller
         })->values();
 
         return view('backend.workflowTemplates.edit', [
-            'industries' => Industry::select('id', 'name')->orderBy('name')->get(),
+            // 'industries' => Industry::select('id', 'name')->orderBy('name')->get(),
+            'industries' => $this->getIndustriesWithAvailability($workflowTemplate->id),
             'workflowTemplate' => $workflowTemplate,
             'stagesForJs' => $stagesForJs,
         ]);
@@ -223,5 +232,31 @@ class WorkflowTemplateController extends Controller
             ]);
 
         return response()->json($services);
+    }
+
+    protected function getIndustriesWithAvailability(?int $excludeTemplateId = null)
+    {
+        $industries = Industry::select('id', 'name')->orderBy('name')->get();
+
+        $serviceCounts = Service::select('industry_id', DB::raw('count(*) as total'))
+            ->groupBy('industry_id')
+            ->pluck('total', 'industry_id');
+
+        $usedCounts = WorkflowTemplateStage::query()
+            ->join('workflow_templates', 'workflow_templates.id', '=', 'workflow_template_stages.template_id')
+            ->when($excludeTemplateId, fn($q) => $q->where('workflow_templates.id', '!=', $excludeTemplateId))
+            ->select('workflow_templates.industry_id', DB::raw('count(distinct workflow_template_stages.service_id) as used'))
+            ->groupBy('workflow_templates.industry_id')
+            ->pluck('used', 'industry_id');
+
+        return $industries->map(function ($industry) use ($serviceCounts, $usedCounts) {
+            $total = (int) ($serviceCounts[$industry->id] ?? 0);
+            $used = (int) ($usedCounts[$industry->id] ?? 0);
+
+            $industry->has_services = $total > 0;
+            $industry->all_services_used = $total > 0 && $used >= $total;
+
+            return $industry;
+        });
     }
 }

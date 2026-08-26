@@ -49,8 +49,7 @@
                 <div class="card">
                     <div class="card-body">
                         <h4 class="card-title">Staff Permissions List</h4>
-                        <h6 class="card-subtitle mb-4 text-muted">Manage all staff permissions with server-side
-                            DataTables.</h6>
+                        <h6 class="card-subtitle mb-4 text-muted">Manage all staff permissions</h6>
                         <div class="table-responsive">
                             <table id="staff-permissions-table"
                                 class="table border table-striped table-bordered text-nowrap w-100">

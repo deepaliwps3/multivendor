@@ -43,8 +43,7 @@
                 <div class="card">
                     <div class="card-body">
                         <h4 class="card-title">Workflow Templates List</h4>
-                        <h6 class="card-subtitle mb-4 text-muted">Manage workflow templates and their stages with
-                            server-side DataTables.</h6>
+                        <h6 class="card-subtitle mb-4 text-muted">Manage workflow templates and their stages</h6>
                         <div class="table-responsive">
                             <table id="workflow-templates-table"
                                 class="table border table-striped table-bordered text-nowrap w-100">

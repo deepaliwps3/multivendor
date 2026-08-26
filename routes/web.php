@@ -5,6 +5,7 @@ use App\Http\Controllers\Backend\IndustryController;
 use App\Http\Controllers\Backend\VendorController;
 use App\Http\Controllers\Backend\ServiceController;
 use App\Http\Controllers\Backend\WorkflowTemplateController;
+use App\Http\Controllers\Backend\StaffController;
 use App\Http\Controllers\Backend\StaffPermissionController;
 use App\Http\Controllers\Backend\PaymentController;
 use App\Http\Controllers\ProfileController;
@@ -23,7 +24,24 @@ Route::middleware('auth', 'verified')->group(function () {
     Route::resource('services', ServiceController::class);
     Route::resource('workflow-templates', WorkflowTemplateController::class);
     Route::resource('vendors', VendorController::class);
-    Route::resource('staff-permissions', StaffPermissionController::class);
+
+    // Add Staff / Edit Staff (dedicated pages, not modals)
+    Route::get('staff/create', [StaffController::class, 'create'])->name('staff.create');
+    Route::post('staff', [StaffController::class, 'store'])->name('staff.store');
+    Route::get('staff/{staff}/edit', [StaffController::class, 'edit'])->name('staff.edit');
+    Route::put('staff/{staff}', [StaffController::class, 'update'])->name('staff.update');
+
+    // Staff & Permissions listing (DataTable)
+    // Route::resource('staff-permissions', StaffPermissionController::class);
+    Route::get('staff-permissions', [StaffPermissionController::class, 'index'])->name('staff-permissions.index');
+
+    // Assign Permissions matrix page
+    Route::get('staff-permissions/{staff}/permissions', [StaffPermissionController::class, 'permissions'])
+        ->name('staff-permissions.permissions');
+    Route::post('staff-permissions/{staff}/permissions', [StaffPermissionController::class, 'savePermissions'])
+        ->name('staff-permissions.permissions.save');
+
+
     Route::resource('payments', PaymentController::class);
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');

@@ -15,10 +15,9 @@
             </div>
             <div class="col-12 col-sm-5 align-self-center mt-3 mt-sm-0">
                 <div class="customize-input float-sm-end">
-                    <button type="button" class="btn btn-primary rounded-pill px-4 w-100 w-sm-auto"
-                        data-bs-toggle="modal" data-bs-target="#addStaffPermissionModal">
-                        <i data-feather="plus" class="feather-icon me-1"></i> Add Staff Permission
-                    </button>
+                    <a href="{{ route('staff.create') }}" class="btn btn-primary rounded-pill px-4 w-100 w-sm-auto">
+                        <i data-feather="plus" class="feather-icon me-1"></i> Add Staff
+                    </a>
                 </div>
             </div>
         </div>
@@ -33,13 +32,9 @@
             </div>
         @endif
 
-        @if (isset($errors) && $errors->any())
+        @if (session('error'))
             <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                <ul class="mb-0">
-                    @foreach ($errors->all() as $error)
-                        <li>{{ $error }}</li>
-                    @endforeach
-                </ul>
+                {{ session('error') }}
                 <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
             </div>
         @endif
@@ -49,16 +44,17 @@
                 <div class="card">
                     <div class="card-body">
                         <h4 class="card-title">Staff Permissions List</h4>
-                        <h6 class="card-subtitle mb-4 text-muted">Manage all staff permissions</h6>
+                        <h6 class="card-subtitle mb-4 text-muted">Manage all staff and their permissions</h6>
                         <div class="table-responsive">
                             <table id="staff-permissions-table"
                                 class="table border table-striped table-bordered text-nowrap w-100">
                                 <thead>
                                     <tr>
                                         <th>S.No</th>
-                                        <th>Staff</th>
-                                        <th>Permission Key</th>
-                                        <th>Actions</th>
+                                        <th>Staff Details</th>
+                                        <th>Permission Name</th>
+                                        <th>Status</th>
+                                        <th>Action</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -71,85 +67,10 @@
         </div>
     </div>
 
-    <!-- Add Staff Permission Modal -->
-    <div class="modal fade" id="addStaffPermissionModal" tabindex="-1" aria-labelledby="addStaffPermissionModalLabel"
-        aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content">
-                <form action="{{ route('staff-permissions.store') }}" method="POST">
-                    @csrf
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="addStaffPermissionModalLabel">Add New Staff Permission</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                    </div>
-                    <div class="modal-body">
-                        <div class="mb-3">
-                            <label for="staff_id" class="form-label font-weight-medium">Staff</label>
-                            <select class="form-select" id="staff_id" name="staff_id" required>
-                                <option value="" selected disabled>Select Staff</option>
-                                @foreach ($staff as $member)
-                                    <option value="{{ $member->id }}">{{ $member->name }}</option>
-                                @endforeach
-                            </select>
-                        </div>
-                        <div class="mb-3">
-                            <label for="permission_key" class="form-label font-weight-medium">Permission Key</label>
-                            <input type="text" class="form-control" id="permission_key" name="permission_key"
-                                placeholder="e.g. industries.create" required>
-                        </div>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                        <button type="submit" class="btn btn-primary">Save Permission</button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
-
-    <!-- Edit Staff Permission Modal -->
-    <div class="modal fade" id="editStaffPermissionModal" tabindex="-1" aria-labelledby="editStaffPermissionModalLabel"
-        aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content">
-                <form id="editStaffPermissionForm" method="POST">
-                    @csrf
-                    @method('PUT')
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="editStaffPermissionModalLabel">Edit Staff Permission</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                    </div>
-                    <div class="modal-body">
-                        <div class="mb-3">
-                            <label for="edit_staff_id" class="form-label font-weight-medium">Staff</label>
-                            <select class="form-select" id="edit_staff_id" name="staff_id" required>
-                                <option value="" disabled>Select Staff</option>
-                                @foreach ($staff as $member)
-                                    <option value="{{ $member->id }}">{{ $member->name }}</option>
-                                @endforeach
-                            </select>
-                        </div>
-                        <div class="mb-3">
-                            <label for="edit_permission_key" class="form-label font-weight-medium">Permission
-                                Key</label>
-                            <input type="text" class="form-control" id="edit_permission_key" name="permission_key"
-                                required>
-                        </div>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                        <button type="submit" class="btn btn-primary">Update Permission</button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
-
-    <!-- DataTables Scripts -->
     @push('scripts')
         <script>
             $(document).ready(function() {
-                var table = $('#staff-permissions-table').DataTable({
+                $('#staff-permissions-table').DataTable({
                     processing: true,
                     serverSide: true,
                     ajax: "{{ route('staff-permissions.index') }}",
@@ -160,12 +81,18 @@
                             searchable: false
                         },
                         {
-                            data: 'staff_id',
-                            name: 'staff_id'
+                            data: 'staff_details',
+                            name: 'name'
                         },
                         {
-                            data: 'permission_key',
-                            name: 'permission_key'
+                            data: 'permission_name',
+                            name: 'staff_permissions_count',
+                            orderable: false,
+                            searchable: false
+                        },
+                        {
+                            data: 'status',
+                            name: 'status'
                         },
                         {
                             data: 'actions',
@@ -178,40 +105,6 @@
                         if (typeof feather !== 'undefined') {
                             feather.replace();
                         }
-                    }
-                });
-
-                // Trigger Edit Modal dynamically
-                $(document).on('click', '.edit-staff-permission-btn', function() {
-                    var id = $(this).data('id');
-                    var staffId = $(this).data('staff-id');
-                    var permissionKey = $(this).data('permission-key');
-
-                    var updateUrl = "{{ route('staff-permissions.update', ':id') }}".replace(':id', id);
-                    $('#editStaffPermissionForm').attr('action', updateUrl);
-                    $('#edit_staff_id').val(staffId);
-                    $('#edit_permission_key').val(permissionKey);
-                    $('#editStaffPermissionModal').modal('show');
-                });
-
-                // Handle AJAX Delete
-                $(document).on('click', '.delete-staff-permission-btn', function() {
-                    if (confirm('Are you sure you want to delete this staff permission?')) {
-                        var url = $(this).data('url');
-                        $.ajax({
-                            url: url,
-                            type: 'POST',
-                            data: {
-                                _token: "{{ csrf_token() }}",
-                                _method: "DELETE"
-                            },
-                            success: function(response) {
-                                table.ajax.reload(null, false);
-                            },
-                            error: function(xhr) {
-                                alert('Failed to delete staff permission.');
-                            }
-                        });
                     }
                 });
             });

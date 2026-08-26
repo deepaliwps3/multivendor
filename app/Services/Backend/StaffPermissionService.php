@@ -2,96 +2,84 @@
 
 namespace App\Services\Backend;
 
+use App\Models\Permission;
 use App\Models\StaffPermission;
-use Illuminate\Database\Eloquent\Collection;
+use App\Models\User;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Str;
 use Throwable;
 
 class StaffPermissionService
 {
+    protected const STAFF_ROLE_ID = 2;
+
     /**
-     * Get all staff permissions ordered by latest.
+     * Query used by the Staff & Permissions index DataTable.
+     * Lists every staff user (role_id = 2) with a count of assigned permissions.
      */
-    public function getAllStaffPermissions(): Collection
+    public function getStaffListQuery()
     {
-        return StaffPermission::with('staff')->latest()->get();
+        return User::query()
+            ->where('role_id', self::STAFF_ROLE_ID)
+            ->withCount('staffPermissions')
+            ->latest();
     }
 
     /**
-     * Get staff permissions query for Yajra DataTables.
+     * All modules/actions grouped, with the ids of permissions already
+     * assigned to the given staff member marked as checked.
+     *
+     * Returns a Collection keyed by module name, each value a Collection of
+     * ['id' => 1, 'label' => 'View', 'checked' => true] arrays.
      */
-    public function getStaffPermissionsQuery()
+    public function getPermissionMatrix(User $staff)
     {
-        return StaffPermission::query()->with('staff')->latest();
+        $assignedIds = StaffPermission::query()
+            ->where('staff_id', $staff->id)
+            ->pluck('permission_id')
+            ->flip();
+
+        return Permission::query()
+            ->orderBy('module')
+            ->orderBy('id')
+            ->get()
+            ->groupBy('module')
+            ->map(function ($permissions) use ($assignedIds) {
+                return $permissions->map(fn($permission) => [
+                    'id'      => $permission->id,
+                    'label'   => $permission->label,
+                    'checked' => $assignedIds->has($permission->id),
+                ]);
+            });
     }
 
     /**
-     * Create a new staff permission using DB transactions.
+     * Replace a staff member's permissions with the given permission id list.
      *
      * @throws Throwable
      */
-    public function createStaffPermission(array $data): StaffPermission
+    public function syncPermissions(User $staff, array $permissionIds): void
     {
         DB::beginTransaction();
 
         try {
-            $staffPermission = StaffPermission::create($data);
-            DB::commit();
+            StaffPermission::where('staff_id', $staff->id)->delete();
 
-            return $staffPermission;
+            foreach ($permissionIds as $permissionId) {
+                StaffPermission::create([
+                    'uuid'          => (string) Str::uuid(),
+                    'staff_id'      => $staff->id,
+                    'permission_id' => $permissionId,
+                ]);
+            }
+
+            DB::commit();
         } catch (Throwable $e) {
             DB::rollBack();
-            Log::error('Failed to create staff permission: ' . $e->getMessage(), [
-                'data' => $data,
-                'exception' => $e,
-            ]);
-            throw $e;
-        }
-    }
-
-    /**
-     * Update an existing staff permission using DB transactions.
-     *
-     * @throws Throwable
-     */
-    public function updateStaffPermission(StaffPermission $staffPermission, array $data): StaffPermission
-    {
-        DB::beginTransaction();
-
-        try {
-            $staffPermission->update($data);
-            DB::commit();
-
-            return $staffPermission;
-        } catch (Throwable $e) {
-            DB::rollBack();
-            Log::error('Failed to update staff permission ID ' . $staffPermission->id . ': ' . $e->getMessage(), [
-                'data' => $data,
-                'exception' => $e,
-            ]);
-            throw $e;
-        }
-    }
-
-    /**
-     * Delete a staff permission using DB transactions.
-     *
-     * @throws Throwable
-     */
-    public function deleteStaffPermission(StaffPermission $staffPermission): bool
-    {
-        DB::beginTransaction();
-
-        try {
-            $deleted = (bool) $staffPermission->delete();
-            DB::commit();
-
-            return $deleted;
-        } catch (Throwable $e) {
-            DB::rollBack();
-            Log::error('Failed to delete staff permission ID ' . $staffPermission->id . ': ' . $e->getMessage(), [
-                'exception' => $e,
+            Log::error('Failed to sync permissions for staff ID ' . $staff->id . ': ' . $e->getMessage(), [
+                'permission_ids' => $permissionIds,
+                'exception'      => $e,
             ]);
             throw $e;
         }

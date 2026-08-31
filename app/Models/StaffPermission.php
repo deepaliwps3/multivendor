@@ -10,7 +10,7 @@ class StaffPermission extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['uuid', 'staff_id', 'permission_key'];
+    protected $fillable = ['uuid', 'staff_id', 'permission_id'];
 
     protected static function boot()
     {
@@ -24,5 +24,10 @@ class StaffPermission extends Model
     public function staff()
     {
         return $this->belongsTo(User::class, 'staff_id');
+    }
+
+    public function permission()
+    {
+        return $this->belongsTo(Permission::class, 'permission_id');
     }
 }

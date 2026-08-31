@@ -49,7 +49,7 @@
                 <div class="card">
                     <div class="card-body">
                         <h4 class="card-title">Payments List</h4>
-                        <h6 class="card-subtitle mb-4 text-muted">Manage all payments with server-side DataTables.</h6>
+                        <h6 class="card-subtitle mb-4 text-muted">Manage all payments</h6>
                         <div class="table-responsive">
                             <table id="payments-table"
                                 class="table border table-striped table-bordered text-nowrap w-100">

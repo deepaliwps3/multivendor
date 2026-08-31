@@ -49,8 +49,7 @@
                 <div class="card">
                     <div class="card-body">
                         <h4 class="card-title">Industries List</h4>
-                        <h6 class="card-subtitle mb-4 text-muted">Manage all industry categories with server-side
-                            DataTables.</h6>
+                        <h6 class="card-subtitle mb-4 text-muted">Manage all industry categories</h6>
                         <div class="table-responsive">
                             <table id="industries-table"
                                 class="table border table-striped table-bordered text-nowrap w-100">

@@ -33,13 +33,32 @@
                         <form id="workflowTemplateForm" action="{{ route('workflow-templates.store') }}" method="POST">
                             @csrf
 
-                            <div class="mb-3">
+                            {{-- <div class="mb-3">
                                 <label for="industry_id" class="form-label font-weight-medium">Industry</label>
                                 <select class="form-select" id="industry_id" name="industry_id" required>
                                     <option value="" selected disabled>Select Industry</option>
                                     @foreach ($industries as $industry)
                                         <option value="{{ $industry->id }}" {{ old('industry_id') == $industry->id ? 'selected' : '' }}>
                                             {{ $industry->name }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </div> --}}
+
+                            <div class="mb-3">
+                                <label for="industry_id" class="form-label font-weight-medium">Industry</label>
+                                <select class="form-select" id="industry_id" name="industry_id" required>
+                                    <option value="" selected disabled>Select Industry</option>
+                                    @foreach ($industries as $industry)
+                                        <option value="{{ $industry->id }}"
+                                            {{ old('industry_id') == $industry->id ? 'selected' : '' }}
+                                            @if(($industry->all_services_used || !$industry->has_services) && old('industry_id') != $industry->id) disabled @endif>
+                                            {{ $industry->name }}
+                                            @if(!$industry->has_services)
+                                                (no services available)
+                                            @elseif($industry->all_services_used)
+                                                (all services already used)
+                                            @endif
                                         </option>
                                     @endforeach
                                 </select>

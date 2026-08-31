@@ -49,8 +49,7 @@
                 <div class="card">
                     <div class="card-body">
                         <h4 class="card-title">Services List</h4>
-                        <h6 class="card-subtitle mb-4 text-muted">Manage all services with server-side
-                            DataTables.</h6>
+                        <h6 class="card-subtitle mb-4 text-muted">Manage all services</h6>
                         <div class="table-responsive">
                             <table id="services-table"
                                 class="table border table-striped table-bordered text-nowrap w-100">

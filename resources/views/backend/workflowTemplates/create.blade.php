@@ -27,71 +27,63 @@
         @endif
 
         <div class="row">
-            <div class="col-12">
-                <div class="card">
-                    <div class="card-body">
-                        <form id="workflowTemplateForm" action="{{ route('workflow-templates.store') }}" method="POST">
-                            @csrf
+            <div class="col-12 col-xl-10">
+                <form id="workflowTemplateForm" action="{{ route('workflow-templates.store') }}" method="POST">
+                    @csrf
+                    <div class="card mb-4">
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-12 col-md-6 mb-3">
+                                    <label for="industry_id" class="form-label font-weight-medium">Industry</label>
+                                    <span class="text-danger">*</span></label>
+                                    <select class="form-select" id="industry_id" name="industry_id" required>
+                                        <option value="" selected disabled>Select Industry</option>
+                                        @foreach ($industries as $industry)
+                                            <option value="{{ $industry->id }}"
+                                                {{ old('industry_id') == $industry->id ? 'selected' : '' }}
+                                                @if(($industry->all_services_used || !$industry->has_services) && old('industry_id') != $industry->id) disabled @endif>
+                                                {{ $industry->name }}
+                                                @if(!$industry->has_services)
+                                                    (no services available)
+                                                @elseif($industry->all_services_used)
+                                                    (all services already used)
+                                                @endif
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                </div>
 
-                            {{-- <div class="mb-3">
-                                <label for="industry_id" class="form-label font-weight-medium">Industry</label>
-                                <select class="form-select" id="industry_id" name="industry_id" required>
-                                    <option value="" selected disabled>Select Industry</option>
-                                    @foreach ($industries as $industry)
-                                        <option value="{{ $industry->id }}" {{ old('industry_id') == $industry->id ? 'selected' : '' }}>
-                                            {{ $industry->name }}
-                                        </option>
-                                    @endforeach
-                                </select>
-                            </div> --}}
+                                <div class="col-12 col-md-6 mb-3">
+                                    <label for="name" class="form-label font-weight-medium">Template Name</label>
+                                    <span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control" id="name" name="name"
+                                        value="{{ old('name') }}" placeholder="e.g. Standard Onboarding Flow" required>
+                                </div>
 
-                            <div class="mb-3">
-                                <label for="industry_id" class="form-label font-weight-medium">Industry</label>
-                                <select class="form-select" id="industry_id" name="industry_id" required>
-                                    <option value="" selected disabled>Select Industry</option>
-                                    @foreach ($industries as $industry)
-                                        <option value="{{ $industry->id }}"
-                                            {{ old('industry_id') == $industry->id ? 'selected' : '' }}
-                                            @if(($industry->all_services_used || !$industry->has_services) && old('industry_id') != $industry->id) disabled @endif>
-                                            {{ $industry->name }}
-                                            @if(!$industry->has_services)
-                                                (no services available)
-                                            @elseif($industry->all_services_used)
-                                                (all services already used)
-                                            @endif
-                                        </option>
-                                    @endforeach
-                                </select>
+                                <hr>
+
+                                <div class="col-12 col-md-6 mb-3 d-flex justify-content-between align-items-center">
+                                    <label class="form-label font-weight-medium mb-0">Stages</label>
+                                    <span class="text-danger">*</span></label>
+                                    <button type="button" id="addStageBtn" class="btn btn-sm btn-outline-primary">
+                                        <i data-feather="plus" class="feather-icon me-1"></i> Add Stage
+                                    </button>
+                                </div>
+                                <div id="industryError" class="text-danger small mb-2 d-none">
+                                    Please select an industry first.
+                                </div>
+                                <div id="stagesContainer"></div>
                             </div>
-
-                            <div class="mb-3">
-                                <label for="name" class="form-label font-weight-medium">Template Name</label>
-                                <input type="text" class="form-control" id="name" name="name"
-                                    value="{{ old('name') }}" placeholder="e.g. Standard Onboarding Flow" required>
-                            </div>
-
-                            <hr>
-
-                            <div class="d-flex justify-content-between align-items-center mb-2">
-                                <label class="form-label font-weight-medium mb-0">Stages</label>
-                                <button type="button" id="addStageBtn" class="btn btn-sm btn-outline-primary">
-                                    <i data-feather="plus" class="feather-icon me-1"></i> Add Stage
-                                </button>
-                            </div>
-                            <div id="industryError" class="text-danger small mb-2 d-none">
-                                Please select an industry first.
-                            </div>
-                            <div id="stagesContainer"></div>
-
-                            <div class="mt-4 d-flex justify-content-end gap-2">
-                                <a href="{{ route('workflow-templates.index') }}" class="btn btn-secondary">Cancel</a>
-                                <button type="submit" id="saveWorkflowTemplateBtn" class="btn btn-primary" disabled>
-                                    Save Workflow Template
-                                </button>
-                            </div>
-                        </form>
+                        </div>
                     </div>
-                </div>
+                    
+                    <div class="mt-4">
+                        <a href="{{ route('workflow-templates.index') }}" class="btn btn-secondary">Cancel</a>
+                        <button type="submit" id="saveWorkflowTemplateBtn" class="btn btn-primary" disabled>
+                            Save Workflow Template
+                        </button>
+                    </div>
+                </form>
             </div>
         </div>
     </div>

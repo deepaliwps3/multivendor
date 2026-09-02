@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Backend;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\StaffRequest;
 use App\Http\Requests\StaffStoreRequest;
 use App\Http\Requests\StaffUpdateRequest;
 use App\Models\User;
@@ -30,7 +31,7 @@ class StaffController extends Controller
     /**
      * Store a new staff user. Always saved with role_id = 2 (staff).
      */
-    public function store(StaffStoreRequest $request): RedirectResponse
+    public function store(StaffRequest $request): RedirectResponse
     {
         try {
             User::create([
@@ -64,7 +65,7 @@ class StaffController extends Controller
     /**
      * Update an existing staff user. Password is optional on edit.
      */
-    public function update(StaffUpdateRequest $request, User $staff): RedirectResponse
+    public function update(StaffRequest $request, User $staff): RedirectResponse
     {
         try {
             $data = $request->only(['name', 'email', 'phone', 'address']);

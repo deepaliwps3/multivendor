@@ -41,9 +41,12 @@ class StaffPermissionController extends Controller
                         : '<span class="text-muted">No permissions</span>';
                 })
                 ->addColumn('status', function ($row) {
-                    return $row->status
-                        ? '<span class="badge bg-success">Active</span>'
-                        : '<span class="badge bg-secondary">Inactive</span>';
+                    $checked = $row->status ? 'checked' : '';
+
+                    return '<div class="form-check form-switch">
+                                <input type="checkbox" class="form-check-input status-toggle" role="switch"
+                                    data-id="' . $row->id . '" ' . $checked . '>
+                            </div>';
                 })
                 ->addColumn('actions', function ($row) {
                     $editBtn = '<a href="' . route('staff.edit', $row->id) . '" class="btn btn-sm btn-info me-1" title="Edit">
@@ -94,6 +97,20 @@ class StaffPermissionController extends Controller
             }
 
             return back()->with('error', 'Failed to update permissions. Please try again.');
+        }
+    }
+
+    public function toggleStatus(User $staff): JsonResponse
+    {
+        try {
+            $staff->update(['status' => ! $staff->status]);
+
+            return response()->json([
+                'message' => 'Status updated successfully.',
+                'status'  => $staff->status,
+            ]);
+        } catch (Throwable $e) {
+            return response()->json(['message' => 'Failed to update status.'], 500);
         }
     }
 }

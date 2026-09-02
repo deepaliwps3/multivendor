@@ -92,6 +92,8 @@ Route::prefix('admin')->group(function () {
 
         // Staff & Permissions listing (DataTable)
         Route::get('staff-permissions', [StaffPermissionController::class, 'index'])->name('staff-permissions.index');
+        Route::patch('staff-permissions/{staff}/toggle-status', [StaffPermissionController::class, 'toggleStatus'])
+            ->name('staff-permissions.toggle-status');
 
         // Assign Permissions matrix page
         Route::get('staff-permissions/{staff}/permissions', [StaffPermissionController::class, 'permissions'])

@@ -65,47 +65,87 @@
                 </div>
             </div>
         </div>
+
+        <!-- Status Change Confirmation Modal -->
+        <div class="modal fade" id="statusConfirmModal" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Confirm Status Change</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        Are you sure you want to change the status?
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">No</button>
+                        <button type="button" class="btn btn-primary" id="confirmStatusChangeBtn">Yes</button>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 
     @push('scripts')
         <script>
             $(document).ready(function() {
-                $('#staff-permissions-table').DataTable({
+                var table = $('#staff-permissions-table').DataTable({
                     processing: true,
                     serverSide: true,
                     ajax: "{{ route('staff-permissions.index') }}",
-                    columns: [{
-                            data: 'DT_RowIndex',
-                            name: 'DT_RowIndex',
-                            orderable: false,
-                            searchable: false
-                        },
-                        {
-                            data: 'staff_details',
-                            name: 'name'
-                        },
-                        {
-                            data: 'permission_name',
-                            name: 'staff_permissions_count',
-                            orderable: false,
-                            searchable: false
-                        },
-                        {
-                            data: 'status',
-                            name: 'status'
-                        },
-                        {
-                            data: 'actions',
-                            name: 'actions',
-                            orderable: false,
-                            searchable: false
-                        }
+                    columns: [
+                        { data: 'DT_RowIndex', name: 'DT_RowIndex', orderable: false, searchable: false },
+                        { data: 'staff_details', name: 'name' },
+                        { data: 'permission_name', name: 'staff_permissions_count', orderable: false, searchable: false },
+                        { data: 'status', name: 'status' },
+                        { data: 'actions', name: 'actions', orderable: false, searchable: false }
                     ],
                     drawCallback: function() {
                         if (typeof feather !== 'undefined') {
                             feather.replace();
                         }
                     }
+                });
+
+                var pendingToggle = null; // holds the checkbox element awaiting confirmation
+                var statusConfirmModal = new bootstrap.Modal(document.getElementById('statusConfirmModal'));
+
+                // Jab toggle click ho, modal khol do aur checkbox ko purani state pe wapas laa do
+                // jab tak confirm na ho jaye
+                $('#staff-permissions-table').on('change', '.status-toggle', function() {
+                    pendingToggle = $(this);
+
+                    // Revert visually until confirmed
+                    pendingToggle.prop('checked', !pendingToggle.prop('checked'));
+
+                    statusConfirmModal.show();
+                });
+
+                // Modal band ho (No / cross) to kuch mat karo, checkbox already reverted hai
+                $('#statusConfirmModal').on('hidden.bs.modal', function() {
+                    pendingToggle = null;
+                });
+
+                // Yes click -> AJAX call
+                $('#confirmStatusChangeBtn').on('click', function() {
+                    if (!pendingToggle) return;
+
+                    var id = pendingToggle.data('id');
+                    var url = "{{ route('staff-permissions.toggle-status', ':id') }}".replace(':id', id);
+
+                    $.ajax({
+                        url: url,
+                        type: 'PATCH',
+                        data: { _token: "{{ csrf_token() }}" },
+                        success: function(response) {
+                            statusConfirmModal.hide();
+                            table.ajax.reload(null, false); // reload without resetting pagination
+                        },
+                        error: function() {
+                            statusConfirmModal.hide();
+                            alert('Failed to update status. Please try again.');
+                        }
+                    });
                 });
             });
         </script>

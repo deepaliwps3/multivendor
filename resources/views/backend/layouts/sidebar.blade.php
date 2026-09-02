@@ -45,8 +45,8 @@
                 </li>
 
                 <!-- 6. Staff & Permissions -->
-                <li class="sidebar-item {{ request()->routeIs('staff-permissions.*') ? 'selected' : '' }}">
-                    <a class="sidebar-link sidebar-link {{ request()->routeIs('staff-permissions.*') ? 'active' : '' }}" href="{{ route('staff-permissions.index') }}" aria-expanded="false">
+                <li class="sidebar-item {{ request()->routeIs('staff-permissions.*') || request()->routeIs('staff.*') ? 'selected' : '' }}">
+                    <a class="sidebar-link sidebar-link {{ request()->routeIs('staff-permissions.*') || request()->routeIs('staff.*') ? 'active' : '' }}" href="{{ route('staff-permissions.index') }}" aria-expanded="false">
                         <i data-feather="shield" class="feather-icon"></i>
                         <span class="hide-menu">Staff &amp; Permissions</span>
                     </a>

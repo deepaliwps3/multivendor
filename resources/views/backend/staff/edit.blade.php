@@ -18,64 +18,67 @@
     </div>
 
     <div class="container-fluid">
+        @if (isset($errors) && $errors->any())
+            <div class="alert alert-danger">
+                <ul class="mb-0">
+                    @foreach ($errors->all() as $error)
+                        <li>{{ $error }}</li>
+                    @endforeach
+                </ul>
+            </div>
+        @endif
         <div class="row">
-            <div class="col-12 col-lg-8 col-xl-6">
-                <div class="card">
-                    <div class="card-body">
-                        <h4 class="card-title">Staff Details</h4>
-                        <h6 class="card-subtitle mb-4 text-muted">Leave password blank to keep it unchanged</h6>
+            <div class="col-12 col-xl-10">
+                <form action="{{ route('staff.update', $staff->id) }}" method="POST">
+                    @csrf
+                    @method('PUT')
 
-                        @if (isset($errors) && $errors->any())
-                            <div class="alert alert-danger">
-                                <ul class="mb-0">
-                                    @foreach ($errors->all() as $error)
-                                        <li>{{ $error }}</li>
-                                    @endforeach
-                                </ul>
+                    <div class="card mb-4">
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-12 col-md-6 mb-3">
+                                    <label for="name" class="form-label font-weight-medium">Name</label>
+                                    <span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control" id="name" name="name"
+                                        value="{{ old('name', $staff->name) }}" required>
+                                </div>
+
+                                <div class="col-12 col-md-6 mb-3">
+                                    <label for="email" class="form-label font-weight-medium">Email</label>
+                                    <span class="text-danger">*</span></label>
+                                    <input type="email" class="form-control" id="email" name="email"
+                                        value="{{ old('email', $staff->email) }}" required>
+                                </div>
+
+                                <div class="col-12 col-md-6 mb-3">
+                                    <label for="phone" class="form-label font-weight-medium">Phone</label>
+                                    <span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control" id="phone" name="phone"
+                                        value="{{ old('phone', $staff->phone) }}" required>
+                                </div>
+
+                                <div class="col-12 col-md-6 mb-3">
+                                    <label for="password" class="form-label font-weight-medium">Password</label>
+                                    <span class="text-danger">*</span></label>
+                                    <input type="password" class="form-control" id="password" name="password"
+                                        placeholder="Leave blank to keep current password">
+                                </div>
+
+                                <div class="col-12 col-md-6 mb-3">
+                                    <label for="address" class="form-label font-weight-medium">Address</label>
+                                    <span class="text-danger">*</span></label>
+                                    <textarea class="form-control" id="address" name="address" rows="3"
+                                        required>{{ old('address', $staff->address) }}</textarea>
+                                </div>
                             </div>
-                        @endif
-
-                        <form action="{{ route('staff.update', $staff->id) }}" method="POST">
-                            @csrf
-                            @method('PUT')
-
-                            <div class="mb-3">
-                                <label for="name" class="form-label font-weight-medium">Name</label>
-                                <input type="text" class="form-control" id="name" name="name"
-                                    value="{{ old('name', $staff->name) }}" required>
-                            </div>
-
-                            <div class="mb-3">
-                                <label for="email" class="form-label font-weight-medium">Email</label>
-                                <input type="email" class="form-control" id="email" name="email"
-                                    value="{{ old('email', $staff->email) }}" required>
-                            </div>
-
-                            <div class="mb-3">
-                                <label for="phone" class="form-label font-weight-medium">Phone</label>
-                                <input type="text" class="form-control" id="phone" name="phone"
-                                    value="{{ old('phone', $staff->phone) }}" required>
-                            </div>
-
-                            <div class="mb-3">
-                                <label for="password" class="form-label font-weight-medium">Password</label>
-                                <input type="password" class="form-control" id="password" name="password"
-                                    placeholder="Leave blank to keep current password">
-                            </div>
-
-                            <div class="mb-3">
-                                <label for="address" class="form-label font-weight-medium">Address</label>
-                                <textarea class="form-control" id="address" name="address" rows="3"
-                                    required>{{ old('address', $staff->address) }}</textarea>
-                            </div>
-
-                            <div class="d-flex justify-content-end">
-                                <a href="{{ route('staff-permissions.index') }}" class="btn btn-secondary me-2">Cancel</a>
-                                <button type="submit" class="btn btn-primary">Update</button>
-                            </div>
-                        </form>
+                        </div>
                     </div>
-                </div>
+
+                    <div class="mt-4">
+                        <a href="{{ route('staff-permissions.index') }}" class="btn btn-secondary me-2">Cancel</a>
+                        <button type="submit" class="btn btn-primary">Update</button>
+                    </div>
+                </form>
             </div>
         </div>
     </div>

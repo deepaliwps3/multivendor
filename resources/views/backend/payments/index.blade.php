@@ -15,10 +15,9 @@
             </div>
             <div class="col-12 col-sm-5 align-self-center mt-3 mt-sm-0">
                 <div class="customize-input float-sm-end">
-                    <button type="button" class="btn btn-primary rounded-pill px-4 w-100 w-sm-auto"
-                        data-bs-toggle="modal" data-bs-target="#addPaymentModal">
+                    <a href="{{ route('payments.create') }}" class="btn btn-primary rounded-pill px-4 w-100 w-sm-auto">
                         <i data-feather="plus" class="feather-icon me-1"></i> Add Payment
-                    </button>
+                    </a>
                 </div>
             </div>
         </div>
@@ -75,7 +74,7 @@
     </div>
 
     <!-- Add Payment Modal -->
-    <div class="modal fade" id="addPaymentModal" tabindex="-1" aria-labelledby="addPaymentModalLabel"
+    {{-- <div class="modal fade" id="addPaymentModal" tabindex="-1" aria-labelledby="addPaymentModalLabel"
         aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
@@ -127,7 +126,7 @@
                 </form>
             </div>
         </div>
-    </div>
+    </div> --}}
 
     <!-- Edit Payment Modal -->
     <div class="modal fade" id="editPaymentModal" tabindex="-1" aria-labelledby="editPaymentModalLabel"

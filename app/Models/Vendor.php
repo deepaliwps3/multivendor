@@ -21,6 +21,11 @@ class Vendor extends Model
         'approval_status',
         'rejection_reason',
         'vendor_type',
+        'status',
+    ];
+
+    protected $casts = [
+        'status' => 'boolean',
     ];
 
     protected static function boot()

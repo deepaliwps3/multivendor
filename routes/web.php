@@ -16,6 +16,7 @@ use Illuminate\Support\Facades\Route;
  * | Helper Function: Detect Mobile Device or NativePHP Jump App
  * |--------------------------------------------------------------------------
  */
+
 if (! function_exists('isMobileOrNative')) {
     function isMobileOrNative(Request $request): bool
     {
@@ -23,15 +24,15 @@ if (! function_exists('isMobileOrNative')) {
         $host      = $request->header('Host', '') . ' ' . $request->header('X-Forwarded-Host', '');
 
         return str_contains($userAgent, 'Android') ||
-        str_contains($userAgent, 'iPhone') ||
-        str_contains($userAgent, 'iPad') ||
-        str_contains($userAgent, 'Mobile') ||
-        $request->hasHeader('X-NativePHP') ||
-        str_contains($host, '3000') ||
-        str_contains($host, '8100') ||
-        str_contains($host, '192.168') ||
-        str_contains($host, '10.') ||
-        str_contains($host, '172.');
+            str_contains($userAgent, 'iPhone') ||
+            str_contains($userAgent, 'iPad') ||
+            str_contains($userAgent, 'Mobile') ||
+            $request->hasHeader('X-NativePHP') ||
+            str_contains($host, '3000') ||
+            str_contains($host, '8100') ||
+            str_contains($host, '192.168') ||
+            str_contains($host, '10.') ||
+            str_contains($host, '172.');
     }
 }
 
@@ -75,6 +76,8 @@ Route::prefix('admin')->group(function () {
         })->name('dashboard');
 
         Route::resource('industries', IndustryController::class);
+        Route::patch('industries/{industry}/toggle-status', [IndustryController::class, 'toggleStatus'])
+            ->name('industries.toggle-status');
         Route::get('industries/{industry}/services', [WorkflowTemplateController::class, 'servicesByIndustry'])
             ->name('industries.services');
         Route::resource('services', ServiceController::class);

@@ -15,10 +15,9 @@
             </div>
             <div class="col-12 col-sm-5 align-self-center mt-3 mt-sm-0">
                 <div class="customize-input float-sm-end">
-                    <button type="button" class="btn btn-primary rounded-pill px-4 w-100 w-sm-auto"
-                        data-bs-toggle="modal" data-bs-target="#addIndustryModal">
+                    <a href="{{ route('industries.create') }}" class="btn btn-primary rounded-pill px-4 w-100 w-sm-auto">
                         <i data-feather="plus" class="feather-icon me-1"></i> Add Industry
-                    </button>
+                    </a>
                 </div>
             </div>
         </div>
@@ -71,70 +70,23 @@
         </div>
     </div>
 
-    <!-- Add Industry Modal -->
-    <div class="modal fade" id="addIndustryModal" tabindex="-1" aria-labelledby="addIndustryModalLabel"
+    <!-- Status Change Confirmation Modal -->
+    <div class="modal fade" id="statusConfirmModal" tabindex="-1" aria-labelledby="statusConfirmModalLabel"
         aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
-                <form action="{{ route('industries.store') }}" method="POST">
-                    @csrf
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="addIndustryModalLabel">Add New Industry</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                    </div>
-                    <div class="modal-body">
-                        <div class="mb-3">
-                            <label for="name" class="form-label font-weight-medium">Industry Name</label>
-                            <input type="text" class="form-control" id="name" name="name"
-                                placeholder="e.g. Technology, Healthcare" required>
-                        </div>
-                        <div class="mb-3">
-                            <label for="status" class="form-label font-weight-medium">Status</label>
-                            <select class="form-select" id="status" name="status" required>
-                                <option value="1" selected>Active</option>
-                                <option value="0">Inactive</option>
-                            </select>
-                        </div>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                        <button type="submit" class="btn btn-primary">Save Industry</button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
-
-    <!-- Edit Industry Modal -->
-    <div class="modal fade" id="editIndustryModal" tabindex="-1" aria-labelledby="editIndustryModalLabel"
-        aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content">
-                <form id="editIndustryForm" method="POST">
-                    @csrf
-                    @method('PUT')
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="editIndustryModalLabel">Edit Industry</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                    </div>
-                    <div class="modal-body">
-                        <div class="mb-3">
-                            <label for="edit_name" class="form-label font-weight-medium">Industry Name</label>
-                            <input type="text" class="form-control" id="edit_name" name="name" required>
-                        </div>
-                        <div class="mb-3">
-                            <label for="edit_status" class="form-label font-weight-medium">Status</label>
-                            <select class="form-select" id="edit_status" name="status" required>
-                                <option value="1">Active</option>
-                                <option value="0">Inactive</option>
-                            </select>
-                        </div>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                        <button type="submit" class="btn btn-primary">Update Industry</button>
-                    </div>
-                </form>
+                <div class="modal-header">
+                    <h5 class="modal-title" id="statusConfirmModalLabel">Confirm Status Change</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    Are you sure you want to change the status?
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" id="statusConfirmNo"
+                        data-bs-dismiss="modal">No</button>
+                    <button type="button" class="btn btn-primary" id="statusConfirmYes">Yes</button>
+                </div>
             </div>
         </div>
     </div>
@@ -174,20 +126,7 @@
                         }
                     }
                 });
-
-                // Trigger Edit Modal dynamically
-                $(document).on('click', '.edit-industry-btn', function() {
-                    var id = $(this).data('id');
-                    var name = $(this).data('name');
-                    var status = $(this).data('status');
-
-                    var updateUrl = "{{ route('industries.update', ':id') }}".replace(':id', id);
-                    $('#editIndustryForm').attr('action', updateUrl);
-                    $('#edit_name').val(name);
-                    $('#edit_status').val(status);
-                    $('#editIndustryModal').modal('show');
-                });
-
+                
                 // Handle AJAX Delete
                 $(document).on('click', '.delete-industry-btn', function() {
                     if (confirm('Are you sure you want to delete this industry?')) {
@@ -207,6 +146,56 @@
                             }
                         });
                     }
+                });
+
+                // Handle Status Toggle
+                var pendingToggle = null; // holds the checkbox element awaiting confirmation
+
+                // Intercept toggle click, show confirmation modal instead of firing AJAX immediately
+                $(document).on('change', '.status-toggle-btn', function() {
+                    var checkbox = $(this);
+
+                    // Prevent this change from being treated as final until confirmed
+                    checkbox.prop('checked', !checkbox.is(':checked')); // revert visually first
+
+                    pendingToggle = checkbox;
+                    $('#statusConfirmModal').modal('show');
+                });
+
+                // On "No" or modal dismiss (X / backdrop) — just reset pending reference
+                $('#statusConfirmModal').on('hidden.bs.modal', function() {
+                    pendingToggle = null;
+                });
+
+                // On "Yes" — apply the toggle visually and send AJAX request
+                $('#statusConfirmYes').on('click', function() {
+                    if (!pendingToggle) {
+                        return;
+                    }
+
+                    var checkbox = pendingToggle;
+                    var url = checkbox.data('url');
+
+                    // Now actually flip the checkbox to reflect the confirmed change
+                    checkbox.prop('checked', !checkbox.is(':checked'));
+
+                    $.ajax({
+                        url: url,
+                        type: 'PATCH',
+                        data: {
+                            _token: "{{ csrf_token() }}"
+                        },
+                        success: function(response) {
+                            // UI already updated
+                        },
+                        error: function(xhr) {
+                            checkbox.prop('checked', !checkbox.is(':checked')); // revert on failure
+                            alert('Failed to update status.');
+                        }
+                    });
+
+                    pendingToggle = null;
+                    $('#statusConfirmModal').modal('hide');
                 });
             });
         </script>

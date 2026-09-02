@@ -23,7 +23,7 @@
     <link href="{{ asset('assets/dist/css/custom-datatables.css') }}" rel="stylesheet">
     <link href="{{ asset('assets/dist/css/style.min.css') }}" rel="stylesheet">
     @viteReactRefresh
-    @vite(['resources/js/backend.tsx'])
+    {{-- @vite(['resources/js/backend.tsx']) --}}
     @stack('styles')
 
     <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->

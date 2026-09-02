@@ -33,16 +33,29 @@ class IndustryController extends Controller
 
             return DataTables::of($query)
                 ->addIndexColumn()
+                // ->editColumn('status', function ($row) {
+                //     if ($row->status) {
+                //         return '<span class="badge bg-success">Active</span>';
+                //     }
+                //     return '<span class="badge bg-danger">Inactive</span>';
+                // })
                 ->editColumn('status', function ($row) {
-                    if ($row->status) {
-                        return '<span class="badge bg-success">Active</span>';
-                    }
-                    return '<span class="badge bg-danger">Inactive</span>';
+                    $checked = $row->status ? 'checked' : '';
+
+                    return '<div class="form-check form-switch">
+                                <input type="checkbox" class="form-check-input status-toggle-btn" role="switch"
+                                    data-id="' . $row->id . '"
+                                    data-url="' . route('industries.toggle-status', $row->id) . '"
+                                    ' . $checked . '>
+                            </div>';
                 })
                 ->addColumn('actions', function ($row) {
-                    $editBtn = '<button class="btn btn-sm btn-info me-1 edit-industry-btn" data-id="' . $row->id . '" data-name="' . e($row->name) . '" data-status="' . ($row->status ? '1' : '0') . '">
+                    // $editBtn = '<button class="btn btn-sm btn-info me-1 edit-industry-btn" data-id="' . $row->id . '" data-name="' . e($row->name) . '" data-status="' . ($row->status ? '1' : '0') . '">
+                    //                 <i data-feather="edit-2" class="feather-icon"></i> Edit
+                    //             </button>';
+                    $editBtn = '<a href="' . route('industries.edit', $row->id) . '" class="btn btn-sm btn-info me-1">
                                     <i data-feather="edit-2" class="feather-icon"></i> Edit
-                                </button>';
+                                </a>';
                     $deleteUrl = route('industries.destroy', $row->id);
                     $deleteBtn = '<button class="btn btn-sm btn-danger delete-industry-btn" data-url="' . $deleteUrl . '">
                                     <i data-feather="trash-2" class="feather-icon"></i> Delete
@@ -55,6 +68,16 @@ class IndustryController extends Controller
         }
 
         return view('backend.industries.index');
+    }
+
+    /**
+     * Show the form for creating a new industry.
+     */
+    public function create(): View
+    {
+        return view('backend.industries.form', [
+            'industry' => new Industry(),
+        ]);
     }
 
     /**
@@ -85,6 +108,14 @@ class IndustryController extends Controller
     public function show(Industry $industry): IndustryResource
     {
         return new IndustryResource($industry);
+    }
+
+    /**
+     * Show the form for editing the specified industry.
+     */
+    public function edit(Industry $industry): View
+    {
+        return view('backend.industries.form', compact('industry'));
     }
 
     /**
@@ -128,6 +159,23 @@ class IndustryController extends Controller
             }
 
             return back()->with('error', 'Failed to delete industry. Please try again.');
+        }
+    }
+
+    /**
+     * Toggle the status of the specified industry.
+     */
+    public function toggleStatus(Request $request, Industry $industry): JsonResponse
+    {
+        try {
+            $updatedIndustry = $this->industryService->toggleStatus($industry);
+
+            return response()->json([
+                'message' => 'Status updated successfully.',
+                'status' => $updatedIndustry->status,
+            ]);
+        } catch (Throwable $e) {
+            return response()->json(['message' => 'Failed to update status.'], 500);
         }
     }
 }

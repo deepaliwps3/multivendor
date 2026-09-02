@@ -96,4 +96,27 @@ class IndustryService
             throw $e;
         }
     }
+
+    /**
+     * Toggle the status of an industry using DB transactions.
+     *
+     * @throws Throwable
+     */
+    public function toggleStatus(Industry $industry): Industry
+    {
+        DB::beginTransaction();
+
+        try {
+            $industry->update(['status' => ! $industry->status]);
+            DB::commit();
+
+            return $industry;
+        } catch (Throwable $e) {
+            DB::rollBack();
+            Log::error('Failed to toggle status for industry ID ' . $industry->id . ': ' . $e->getMessage(), [
+                'exception' => $e,
+            ]);
+            throw $e;
+        }
+    }
 }

@@ -16,7 +16,7 @@
     <link href="{{ asset('assets/dist/css/style.min.css') }}" rel="stylesheet">
     <!-- Scripts -->
     @viteReactRefresh
-    @vite(['resources/js/backend.tsx'])
+    {{-- @vite(['resources/js/backend.tsx']) --}}
     <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
     <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
     <!--[if lt IE 9]>

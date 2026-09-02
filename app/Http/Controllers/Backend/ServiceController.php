@@ -52,9 +52,9 @@ class ServiceController extends Controller
                         ->select('services.*');
                 })
                 ->addColumn('actions', function ($row) {
-                    $editBtn = '<button class="btn btn-sm btn-info me-1 edit-service-btn" data-id="' . $row->id . '" data-industry_id="' . $row->industry_id . '" data-name="' . e($row->name) . '" data-description="' . e($row->description) . '">
-                                    <i data-feather="edit-2" class="feather-icon"></i> Edit
-                                </button>';
+                    $editBtn = '<a href="' . route('services.edit', $row->id) . '" class="btn btn-sm btn-info me-1">
+                                <i data-feather="edit-2" class="feather-icon"></i> Edit
+                            </a>';
                     $deleteUrl = route('services.destroy', $row->id);
                     $deleteBtn = '<button class="btn btn-sm btn-danger delete-service-btn" data-url="' . $deleteUrl . '">
                                     <i data-feather="trash-2" class="feather-icon"></i> Delete
@@ -74,9 +74,12 @@ class ServiceController extends Controller
     /**
      * Show the form for creating a new resource.
      */
-    public function create()
+    public function create(): View
     {
-        //
+        return view('backend.services.form', [
+            'industries' => Industry::all(),
+            'service' => new Service(),
+        ]);
     }
 
     /**
@@ -112,9 +115,12 @@ class ServiceController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(string $id)
+    public function edit(Service $service): View
     {
-        //
+        return view('backend.services.form', [
+            'industries' => Industry::all(),
+            'service' => $service,
+        ]);
     }
 
     /**

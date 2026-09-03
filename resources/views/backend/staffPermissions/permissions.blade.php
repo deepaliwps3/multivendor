@@ -83,26 +83,6 @@
         </div>
     </div>
 
-    @push('styles')
-        <style>
-            .form-check-input {
-                border: 2px solid #6c757d;
-                width: 1.1em;
-                height: 1.1em;
-            }
-
-            .form-check-input:checked {
-                background-color: #0d6efd;
-                border-color: #0d6efd;
-            }
-
-            .form-check-input:focus {
-                border-color: #0d6efd;
-                box-shadow: 0 0 0 .2rem rgba(13, 110, 253, .25);
-            }
-        </style>
-    @endpush
-
     @push('scripts')
         <script>
             $(document).ready(function() {

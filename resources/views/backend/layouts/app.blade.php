@@ -22,6 +22,7 @@
         rel="stylesheet">
     <link href="{{ asset('assets/dist/css/custom-datatables.css') }}" rel="stylesheet">
     <link href="{{ asset('assets/dist/css/style.min.css') }}" rel="stylesheet">
+    <link rel="stylesheet" href="{{ asset('assets/css/checkbox.css')}}">
     @viteReactRefresh
     {{-- @vite(['resources/js/backend.tsx']) --}}
     @stack('styles')

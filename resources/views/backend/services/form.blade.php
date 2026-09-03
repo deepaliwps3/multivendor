@@ -98,4 +98,25 @@
             </div>
         </div>
     </div>
+    @push('scripts')
+        <script>
+            document.addEventListener('DOMContentLoaded', function () {
+                const industrySelect = document.getElementById('industry_id');
+                const nameInput = document.getElementById('name');
+                const descriptionInput = document.getElementById('description');
+
+                // Store the initial industry value (useful on edit page load)
+                let previousIndustryValue = industrySelect.value;
+
+                industrySelect.addEventListener('change', function () {
+                    // Sirf tab clear karo jab industry pehle se selected thi aur ab change hui
+                    if (previousIndustryValue !== '') {
+                        nameInput.value = '';
+                        descriptionInput.value = '';
+                    }
+                    previousIndustryValue = industrySelect.value;
+                });
+            });
+        </script>
+    @endpush
 </x-app-layout>
